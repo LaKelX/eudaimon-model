@@ -224,6 +224,8 @@
     ['mazzucato','Mazzucato',920,770,'m','The entrepreneurial state: public money funds the risky frontier.',''],
     ['mmt','MMT',780,770,'m','Modern Monetary Theory: a currency issuer is constrained by inflation, not money.',''],
     ['mechdesign','Mechanism\nDesign',470,705,'m','Hurwicz, Myerson, Roth: design the rules so self-interest produces the outcome you want.','Designing the citizen-stake charter.'],
+    ['frey','Frey, Schneider,\nNordhaus',300,770,'m','Politico-economic models (1975–78): governments chase re-election, voters judge the economy, policy cycles around elections.','The Democracy run: popularity function, vote-buying before elections, partisan platforms.'],
+    ['geels','Geels (MLP)',560,770,'m','Multi-level perspective on socio-technical transitions (2002): landscape pressure opens windows, niches break through locked-in regimes.','The power sector: regime lock-in, niche learning curve, windows of opportunity.'],
     ['eudaimon','EUDAIMON',690,780,'eud','Evolutionary economy + Market Mind: the seven ovals run as one system, plus the bottleneck thesis.',''],
   ];
   const E0 = [
@@ -253,11 +255,11 @@
   ];
   const EM = [
     ['ibnkhaldun','smith'],['graham','chicago'],['fama','chicago'],['kahneman','behavioral'],['soros','postk'],['ostrom','institutional'],['polanyi','institutional'],
-    ['penrose','evolutionary'],['sen','radical'],['piketty','radical'],['schumpeter','mazzucato'],['mazzucato','evolutionary'],['postk','mmt'],['nash','mechdesign'],['wicksell','soros'],
+    ['penrose','evolutionary'],['sen','radical'],['piketty','radical'],['schumpeter','mazzucato'],['mazzucato','evolutionary'],['postk','mmt'],['nash','mechdesign'],['schumpeter','geels'],['keynes','frey'],['schelling','frey'],['wicksell','soros'],
   ];
   const EE = [
     ['evolutionary','eudaimon'],['abm','eudaimon'],['behavioral','eudaimon'],['postk','eudaimon'],['institutional','eudaimon'],['radical','eudaimon'],['ecological','eudaimon'],
-    ['austrian','eudaimon'],['soros','eudaimon'],['kahneman','eudaimon'],['fama','eudaimon'],['graham','eudaimon'],['mechdesign','eudaimon'],['ricardo','eudaimon'],
+    ['austrian','eudaimon'],['soros','eudaimon'],['kahneman','eudaimon'],['fama','eudaimon'],['graham','eudaimon'],['mechdesign','eudaimon'],['ricardo','eudaimon'],['frey','eudaimon'],['geels','eudaimon'],
   ];
 
   const byId = {}; N.forEach(n => byId[n[0]] = { id:n[0], label:n[1], x:n[2], y:n[3], kind:n[4], note:n[5], role:n[6] });
@@ -370,7 +372,7 @@
   if (qs.get('sel') && byId[qs.get('sel')]) select(qs.get('sel'));
 
   // inheritance table
-  const rows = ['darwin','veblen','schumpeter','nelson','ricardo','marx','keynes','kalecki','weintraub','hayek','duesenberry','akerlof','kahneman','holland','wiener','soros','sherman','lucas','boulding']
+  const rows = ['darwin','veblen','schumpeter','nelson','ricardo','marx','keynes','kalecki','weintraub','hayek','duesenberry','akerlof','kahneman','holland','wiener','soros','sherman','lucas','boulding','frey','geels']
     .map(id => byId[id]).filter(n => n.role);
   document.getElementById('inherit').innerHTML = rows.map(n => `<tr><td>${n.label.split('\n').join(' ')}</td><td class="muted">${n.note}</td><td>${n.role}</td></tr>`).join('');
 })();
