@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Market Mind</title>
+<meta name="description" content="An adaptive market that models itself: 200 evolving traders with habits and shadow habits, and a Mind that runs eight theories, discovers market archetypes on its own, and publishes its forecast back into the market.">
+<style>
+  :root { --bg:#0b0b0c; --panel:#141416; --line:#26262a; --grid:#1f1f23; --text:#ecebe7; --muted:#9a978f; --gold:#c9a75e;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767; }
+  * { box-sizing:border-box; }
+  html { color-scheme: dark; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif; }
+  .wrap { max-width:1180px; margin:0 auto; padding:24px 16px 64px; }
+  nav { display:flex; gap:16px; font-size:13px; margin-bottom:14px; }
+  nav a { color:var(--muted); text-decoration:none; }
+  nav a.on { color:var(--gold); }
+  header { border-bottom:1px solid var(--gold); padding-bottom:16px; margin-bottom:20px; }
+  .eyebrow { color:var(--gold); letter-spacing:.14em; font-size:12px; text-transform:uppercase; }
+  h1 { margin:6px 0 6px; font-size:clamp(26px,4.5vw,40px); letter-spacing:-.01em; }
+  h2 { font-size:18px; margin:28px 0 8px; }
+  .lede { color:var(--muted); max-width:780px; margin:0; }
+  .controls { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px; }
+  .ctl label { display:flex; justify-content:space-between; font-size:13px; color:var(--muted); }
+  .ctl label b { color:var(--text); font-weight:600; font-variant-numeric:tabular-nums; }
+  .ctl .hint { font-size:12px; color:var(--muted); margin-top:2px; }
+  input[type=range] { width:100%; accent-color:var(--gold); }
+  .bar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:14px 0 14px; }
+  button { background:var(--gold); color:#111; border:0; border-radius:8px; padding:9px 16px; font-weight:700; cursor:pointer; font-size:14px; }
+  button.ghost { background:transparent; color:var(--text); border:1px solid var(--line); }
+  button.ghost:hover { border-color:var(--muted); }
+  .year { margin-left:auto; font-variant-numeric:tabular-nums; color:var(--muted); }
+  .year b { color:var(--text); font-size:20px; }
+  .voice { background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--gold); border-radius:0 10px 10px 0; padding:14px 16px; margin-bottom:14px; min-height:84px; }
+  .voice .who { color:var(--gold); font-size:12px; letter-spacing:.12em; text-transform:uppercase; }
+  .voice p { margin:4px 0 0; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:14px; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+  .tile .k { color:var(--muted); font-size:12px; }
+  .tile .v { font-size:22px; font-weight:650; font-variant-numeric:tabular-nums; }
+  .tile .d { color:var(--muted); font-size:11px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr)); gap:14px; margin-top:14px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; position:relative; }
+  .card h3 { margin:0; font-size:14px; font-weight:600; }
+  .card .sub { color:var(--muted); font-size:12px; margin:2px 0 8px; }
+  .legend { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:12px; color:var(--muted); margin-bottom:6px; }
+  .sw { display:inline-block; width:12px; height:3px; border-radius:2px; vertical-align:middle; margin-right:6px; }
+  .sq { display:inline-block; width:10px; height:10px; border-radius:2px; vertical-align:-1px; margin-right:6px; }
+  canvas { width:100%; height:200px; display:block; cursor:crosshair; }
+  canvas.tall { height:300px; }
+  .tip { position:absolute; pointer-events:none; background:#0e0e10; border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:12px; line-height:1.45; display:none; z-index:5; min-width:150px; box-shadow:0 6px 20px rgba(0,0,0,.5); }
+  .tip .h { color:var(--muted); margin-bottom:3px; }
+  .tip .r { display:flex; justify-content:space-between; gap:12px; }
+  .tip .r span:last-child { font-variant-numeric:tabular-nums; color:var(--text); }
+  .lib { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:10px; }
+  .arch { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-size:12px; }
+  .arch.cur { border-color:var(--gold); }
+  .arch .n { font-size:15px; font-weight:650; color:var(--text); }
+  .arch .m { color:var(--muted); }
+  .arch .row { display:flex; justify-content:space-between; margin-top:3px; }
+  .arch .row b { font-weight:600; color:var(--text); font-variant-numeric:tabular-nums; }
+  .two { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr)); gap:14px; margin-top:14px; }
+  ul { margin:6px 0 0; padding-left:18px; }
+  li { margin:4px 0; }
+  .muted { color:var(--muted); }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  td { padding:5px 4px; border-top:1px solid var(--line); vertical-align:top; }
+  td:first-child { white-space:nowrap; }
+  footer { margin-top:28px; color:var(--muted); font-size:12px; border-top:1px solid var(--line); padding-top:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav><a href="index.html">The Evolutionary Economy</a><a class="on" href="market.html">The Market Mind</a></nav>
+  <header>
+    <div class="eyebrow">Eudaimon Capitol · Adaptive Market Mind · v0.1</div>
+    <h1>A market that learns to read itself.</h1>
+    <p class="lede">Two hundred traders evolve. They build habits from what paid them, and shadow habits they never chose. A Mind watches only the chart, tests eight theories of markets against what actually happens, discovers its own map of market moods with no labels, and publishes its forecast back to the crowd. Then the crowd trades on it, and the Mind has to understand a market that now contains itself.</p>
+  </header>
+
+  <div class="controls">
+    <div class="ctl"><label>Feedback loop <b id="v-loop"></b></label><input id="loop" type="range" min="0" max="1" step="0.05" value="0.6"><div class="hint">How hard the crowd trades on the Mind's published chart. 0 = it only watches.</div></div>
+    <div class="ctl"><label>Shadow intensity <b id="v-shadow"></b></label><input id="shadow" type="range" min="0" max="2" step="0.1" value="1"><div class="hint">Strength of the biases nobody chose</div></div>
+    <div class="ctl"><label>Learning speed <b id="v-eta"></b></label><input id="eta" type="range" min="0.2" max="2" step="0.1" value="0.9"><div class="hint">How fast the Mind switches theories</div></div>
+    <div class="ctl"><label>Random seed <b id="v-seed"></b></label><input id="seed" type="range" min="1" max="50" step="1" value="3"><div class="hint">A different history of the world</div></div>
+    <div class="ctl"><label>Speed <b id="v-speed"></b></label><input id="speed" type="range" min="1" max="40" step="1" value="12"><div class="hint">Trading days per frame</div></div>
+  </div>
+
+  <div class="bar">
+    <button id="play">Run 12 years</button>
+    <button class="ghost" id="reset">Reset</button>
+    <button class="ghost" id="crash">Inject crash</button>
+    <button class="ghost" id="bubble">Inject euphoria</button>
+    <div class="year">Year <b id="year">0.0</b> / 12</div>
+  </div>
+
+  <div class="voice"><div class="who">The Mind</div><p id="voice">Press Run. The Mind starts knowing nothing. Watch it build a library of market moods and learn which theory explains each one.</p></div>
+
+  <div class="tiles">
+    <div class="tile"><div class="k">Self-knowledge</div><div class="v" id="t-skill">–</div><div class="d">Forecast error vs. a random walk</div></div>
+    <div class="tile"><div class="k">Direction calls right</div><div class="v" id="t-hit">–</div><div class="d">Next-week up/down, recent</div></div>
+    <div class="tile"><div class="k">Archetypes learned</div><div class="v" id="t-arch">0</div><div class="d"><span id="t-recall">0</span> recalls of known moods</div></div>
+    <div class="tile"><div class="k">Reads reality</div><div class="v" id="t-purity">–</div><div class="d">Matches hidden regimes · chance <span id="t-base">–</span></div></div>
+    <div class="tile"><div class="k">Sees the shadow</div><div class="v" id="t-shcorr">–</div><div class="d">Corr. of its shadow read vs. truth</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Price vs. value, and what the Mind thinks is happening</h3>
+    <div class="sub">Log scale. Value comes from the evolutionary economy's productivity plus hidden regime shocks. The top ribbon is the hidden truth. The Mind never sees it. The bottom ribbon is the archetype the Mind thinks it is in, colored by the regime that archetype turned out to match most often. When the ribbons line up, the Mind has discovered reality on its own.</div>
+    <div class="legend"><span><i class="sw" style="background:var(--gold)"></i>Price</span><span><i class="sw" style="background:#8d8a83"></i>Value</span>
+      <span><i class="sq" style="background:var(--s1)"></i>Expansion</span><span><i class="sq" style="background:var(--s4)"></i>Euphoria</span><span><i class="sq" style="background:var(--s8)"></i>Crisis</span><span><i class="sq" style="background:var(--s7)"></i>Stagflation</span><span><i class="sq" style="background:var(--s3)"></i>Recovery</span></div>
+    <canvas id="c-price" class="tall"></canvas>
+    <div class="tip"></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Which theory explains the market right now</h3>
+      <div class="sub">The Mind's trust in each theory (sums to 100%). It re-weights by how well each one predicted the last weeks, separately for every archetype it knows.</div>
+      <div class="legend" id="lg-theory"></div>
+      <canvas id="c-theory"></canvas><div class="tip"></div>
+    </div>
+    <div class="card">
+      <h3>Self-knowledge over time</h3>
+      <div class="sub">How much better the Mind's next-week forecast is than "no change." Above 0 = it understands something real. It drops when it publishes its forecast and the crowd's trading on it changes the market.</div>
+      <div class="legend"><span><i class="sw" style="background:var(--gold)"></i>Skill vs. random walk</span></div>
+      <canvas id="c-skill"></canvas><div class="tip"></div>
+    </div>
+    <div class="card">
+      <h3>Habits: strategies the crowd keeps because they paid</h3>
+      <div class="sub">Wealth-weighted average habit strength. A habit grows when a strategy makes money and fades slowly, so traders keep doing it after the edge is gone.</div>
+      <div class="legend" id="lg-habit"></div>
+      <canvas id="c-habit"></canvas><div class="tip"></div>
+    </div>
+    <div class="card">
+      <h3>Shadow habits: the hidden flow, and the Mind's read of it</h3>
+      <div class="sub">Order flow driven by biases no trader chose: loss scars, herd conformity, dip-buying reflex. Truth is measured inside the agents. The Mind estimates it from the tape alone.</div>
+      <div class="legend"><span><i class="sw" style="background:var(--s7)"></i>Hidden truth</span><span><i class="sw" style="background:var(--gold)"></i>Mind's estimate</span></div>
+      <canvas id="c-shadow"></canvas><div class="tip"></div>
+    </div>
+  </div>
+
+  <h2>The Mind's library of market moods</h2>
+  <p class="muted" style="margin:0 0 10px">Each card is a pattern the Mind found by itself. When the market looks unlike anything it knows, it creates a new archetype. When an old one comes back, it recalls the theory weights that worked there instead of starting over. That's how it adapts faster the longer it lives.</p>
+  <div class="lib" id="lib"><div class="muted">Nothing learned yet.</div></div>
+
+  <div class="two">
+    <div class="card">
+      <h3>The eight theories, strung into one puzzle</h3>
+      <table id="theories"></table>
+    </div>
+    <div class="card">
+      <h3>How it works</h3>
+      <ul>
+        <li><b>Economy:</b> value grows with the productivity of the evolutionary economy (firms mutate, compete, die). A hidden chain of regimes shocks it: expansion, euphoria, crisis, stagflation, recovery. Calm makes euphoria likely, and euphoria makes crisis likely.</li>
+        <li><b>Crowd:</b> 200 traders. Each has a genome over five strategies, its own pattern memory, habits that reinforce on profit, and three shadow habits that build up from experience (big losses leave scars, winning with the herd breeds conformity, dip-buys that worked become reflex). Every quarter the poorest 5% die and the richest reproduce with mutation. Shadows pass to the next generation at half strength.</li>
+        <li><b>Mind:</b> sees price, order flow and noisy earnings. Each theory fits its own coefficient online and is scored on 5-day outcomes. It models the crowd's flow by recursive least squares, and the coefficients on drawdown and herd flow are its estimate of the shadow. It clusters market states into archetypes with no labels, and keeps separate theory weights for each archetype.</li>
+        <li><b>Loop:</b> the Mind's forecast is published, and traders with a "follow the Mind" gene trade on it. The model is part of the market it's modeling.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="two">
+    <div class="card">
+      <h3>What this is not</h3>
+      <ul>
+        <li>Not sentient. It is a self-model: a system that keeps a running account of what it is and corrects it with evidence. That's the honest version of "a market that understands itself."</li>
+        <li>Not a trading signal. A stylized, daily, synthetic market. Every assumption is a parameter you can change in <code>market.js</code>.</li>
+        <li>Skill is noisy. Some histories teach the Mind a lot. In others, the feedback loop keeps eating its edge. That's the point.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Falsifiers: what would prove the idea wrong</h3>
+      <ul>
+        <li>If the Mind's archetypes matched the hidden regimes no better than chance (calling every day the most common regime, shown under the tile), it isn't discovering structure.</li>
+        <li>If skill never rises above 0 across seeds, eight theories plus memory is no better than "no change."</li>
+        <li>If its shadow estimate doesn't track the hidden shadow flow, biases can't be read from the tape.</li>
+        <li>If turning the feedback loop up never lowers skill, reflexivity doesn't matter here.</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>Eudaimon Capitol · Angelo Greene · Open source · <a href="index.html" style="color:var(--muted)">The Evolutionary Economy</a> powers the value layer · Not investment advice.</footer>
+</div>
+
+<script src="core.js"></script>
+<script src="market.js"></script>
+<script>
+(function () {
+  const { makeMarket, REGIMES, THEORIES, SIGNALS } = window.EvoMarket;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const S = ['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8'].map(css);
+  const REGC = [S[0], S[3], S[7], S[6], S[2]];
+  const GOLD = css('--gold'), MUTED = '#9a978f', GRID = css('--grid'), VALUE = '#8d8a83', SURF = css('--panel');
+  const ids = ['loop','shadow','eta','seed','speed'];
+  const el = id => document.getElementById(id);
+  const fmt = { loop: v => (+v).toFixed(2), shadow: v => (+v).toFixed(1) + '×', eta: v => (+v).toFixed(1), seed: v => v, speed: v => v + 'd' };
+  ids.forEach(id => { const f = () => el('v-' + id).textContent = fmt[id](el(id).value); el(id).addEventListener('input', f); f(); });
+
+  el('lg-theory').innerHTML = THEORIES.map((t, j) => `<span><i class="sq" style="background:${S[j]}"></i>${t.name}</span>`).join('');
+  el('lg-habit').innerHTML = SIGNALS.map((t, j) => `<span><i class="sw" style="background:${S[j]}"></i>${t}</span>`).join('');
+  el('theories').innerHTML = THEORIES.map((t, j) => `<tr><td><i class="sq" style="background:${S[j]}"></i>${t.name}</td><td class="muted">${t.school}</td></tr>`).join('');
+
+  let st, running = false, raf = 0, corrCache = null;
+  const DAYS = 3024;
+
+  function fresh() {
+    st = makeMarket({ seed: +el('seed').value, loop: +el('loop').value, shadow: +el('shadow').value, eta: +el('eta').value, days: DAYS });
+    corrCache = null;
+    el('voice').textContent = 'Press Run. The Mind starts knowing nothing. Watch it build a library of market moods and learn which theory explains each one.';
+    drawAll(); renderLib(); tiles();
+  }
+  ['seed','shadow','eta'].forEach(id => el(id).addEventListener('change', () => { stop(); fresh(); }));
+  el('loop').addEventListener('input', () => { if (st) st.o.loop = +el('loop').value; });
+
+  // ── canvas plumbing ──
+  function prep(cv) {
+    const r = cv.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+    const W = Math.max(1, Math.round(r.width * d)), H = Math.max(1, Math.round(r.height * d));
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    const ctx = cv.getContext('2d'); ctx.setTransform(d, 0, 0, d, 0, 0); ctx.clearRect(0, 0, r.width, r.height);
+    return { ctx, w: r.width, h: r.height };
+  }
+  const PAD = { l: 44, r: 10, t: 8, b: 22 };
+  function frame(ctx, w, h, ylo, yhi, ticks, yl, ribbons) {
+    const pb = h - PAD.b - (ribbons || 0);
+    const X = i => PAD.l + (w - PAD.l - PAD.r) * i / (DAYS - 1);
+    const Y = v => pb - (pb - PAD.t) * (v - ylo) / (yhi - ylo || 1);
+    ctx.font = '11px -apple-system, Inter, sans-serif'; ctx.textBaseline = 'middle';
+    ctx.strokeStyle = GRID; ctx.lineWidth = 1; ctx.fillStyle = MUTED; ctx.textAlign = 'right';
+    for (const v of ticks) { const y = Math.round(Y(v)) + .5; ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(w - PAD.r, y); ctx.stroke(); ctx.fillText(yl(v), PAD.l - 6, y); }
+    ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    for (let yr = 0; yr <= 12; yr += 2) ctx.fillText(yr === 0 ? 'yr 0' : yr, X(Math.min(DAYS - 1, yr * 252)), h - 6);
+    return { X, Y, pb };
+  }
+  function niceTicks(lo, hi, n) {
+    const span = hi - lo || 1, step0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(step0)));
+    const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= step0) || mag * 10;
+    const out = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(10)); return out;
+  }
+  function stride(n, w) { return Math.max(1, Math.floor(n / (w * 1.5))); }
+  function line(ctx, hist, X, Y, get, color, w) {
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.beginPath();
+    let on = false; const k = stride(hist.length, w);
+    for (let i = 0; i < hist.length; i += k) { const v = get(hist[i]); if (v == null || !isFinite(v)) { on = false; continue; } const x = X(i), y = Y(v); on ? ctx.lineTo(x, y) : ctx.moveTo(x, y); on = true; }
+    const L = hist.length - 1; if (L >= 0) { const v = get(hist[L]); if (v != null && isFinite(v)) ctx.lineTo(X(L), Y(v)); }
+    ctx.stroke();
+  }
+  function cross(ctx, X, i, top, bot) { ctx.strokeStyle = '#5a5850'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(Math.round(X(i)) + .5, top); ctx.lineTo(Math.round(X(i)) + .5, bot); ctx.stroke(); }
+  function dot(ctx, x, y, c) { ctx.fillStyle = c; ctx.strokeStyle = SURF; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 4, 0, 7); ctx.fill(); ctx.stroke(); }
+  const yearOf = i => (i / 252).toFixed(1);
+
+  const charts = {};
+  function chart(id, draw, tipRows) {
+    const cv = el(id), tip = cv.parentElement.querySelector('.tip');
+    const c = { cv, tip, draw, tipRows, hover: null, geo: null };
+    cv.addEventListener('mousemove', e => {
+      if (!st || !st.hist.length || !c.geo) return;
+      const r = cv.getBoundingClientRect(); const x = e.clientX - r.left;
+      const i = Math.round((x - PAD.l) / (r.width - PAD.l - PAD.r) * (DAYS - 1));
+      if (i < 0 || i >= st.hist.length) { c.hover = null; tip.style.display = 'none'; c.draw(c); return; }
+      c.hover = i; c.draw(c);
+      const rows = c.tipRows(st.hist[i], i);
+      tip.innerHTML = `<div class="h">Year ${yearOf(i)}</div>` + rows.map(([n, v, col]) => `<div class="r"><span>${col ? `<i class="sq" style="background:${col}"></i>` : ''}${n}</span><span>${v}</span></div>`).join('');
+      tip.style.display = 'block';
+      const pr = cv.parentElement.getBoundingClientRect();
+      let left = e.clientX - pr.left + 14; if (left + tip.offsetWidth > pr.width - 4) left = e.clientX - pr.left - tip.offsetWidth - 14;
+      tip.style.left = Math.max(4, left) + 'px'; tip.style.top = (cv.offsetTop + 8) + 'px';
+    });
+    cv.addEventListener('mouseleave', () => { c.hover = null; tip.style.display = 'none'; c.draw(c); });
+    charts[id] = c; return c;
+  }
+
+  // Price + ribbons
+  chart('c-price', c => {
+    const { ctx, w, h } = prep(c.cv); const H = st.hist;
+    let lo = -0.3, hi = 0.3; for (const p of H) { lo = Math.min(lo, p.lp, p.lv); hi = Math.max(hi, p.lp, p.lv); }
+    const pad = (hi - lo) * 0.06; lo -= pad; hi += pad;
+    const tk = niceTicks(lo, hi, 5);
+    const RIB = 34;
+    const g = frame(ctx, w, h, lo, hi, tk, v => Math.exp(v).toFixed(Math.exp(v) < 10 ? 2 : 0) + '×', RIB); c.geo = g;
+    line(ctx, H, g.X, g.Y, p => p.lv, VALUE, w);
+    line(ctx, H, g.X, g.Y, p => p.lp, GOLD, w);
+    // ribbons
+    const y1 = g.pb + 6, y2 = g.pb + 20, rh = 10;
+    ctx.fillStyle = MUTED; ctx.font = '10px -apple-system, Inter, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    const archReg = st.mind.arch.map(A => st.archTruth(A).reg);
+    let s0 = 0;
+    const flush = (a, b, col, y) => { if (col == null) return; ctx.fillStyle = col; ctx.fillRect(g.X(a), y, Math.max(1, g.X(b) - g.X(a)), rh); };
+    for (const [y, get] of [[y1, p => REGC[p.reg]], [y2, p => p.arch >= 0 ? REGC[archReg[p.arch]] : null]]) {
+      s0 = 0;
+      for (let i = 1; i <= H.length; i++) if (i === H.length || get(H[i]) !== get(H[s0])) { flush(s0, i, get(H[s0]), y); s0 = i; }
+    }
+    if (c.hover != null) {
+      cross(ctx, g.X, c.hover, PAD.t, y2 + rh); const p = H[c.hover];
+      dot(ctx, g.X(c.hover), g.Y(p.lv), VALUE); dot(ctx, g.X(c.hover), g.Y(p.lp), GOLD);
+    }
+  }, (p) => {
+    const A = p.arch >= 0 ? st.mind.arch[p.arch] : null;
+    return [['Price', Math.exp(p.lp).toFixed(2) + '×', GOLD], ['Value', Math.exp(p.lv).toFixed(2) + '×', VALUE],
+      ['Hidden truth', REGIMES[p.reg].name, REGC[p.reg]], ['Mind thinks', A ? `${A.name} #${A.id}` : 'warming up', null],
+      ['Next-week call', (p.mf * 100).toFixed(1) + '%', null]];
+  });
+
+  // Theory weights — stacked area with 2px surface gaps
+  chart('c-theory', c => {
+    const { ctx, w, h } = prep(c.cv); const H = st.hist;
+    const g = frame(ctx, w, h, 0, 1, [0, 0.25, 0.5, 0.75, 1], v => (v * 100) + '%'); c.geo = g;
+    if (H.length > 1) {
+      const k = stride(H.length, w), idx = []; for (let i = 0; i < H.length; i += k) idx.push(i); if (idx[idx.length - 1] !== H.length - 1) idx.push(H.length - 1);
+      const base = idx.map(() => 0);
+      for (let j = 0; j < THEORIES.length; j++) {
+        const top = idx.map((i, m) => base[m] + H[i].w[j]);
+        ctx.fillStyle = S[j]; ctx.beginPath();
+        idx.forEach((i, m) => m ? ctx.lineTo(g.X(i), g.Y(top[m])) : ctx.moveTo(g.X(i), g.Y(top[m])));
+        for (let m = idx.length - 1; m >= 0; m--) ctx.lineTo(g.X(idx[m]), g.Y(base[m]));
+        ctx.closePath(); ctx.fill();
+        if (j < THEORIES.length - 1) { ctx.strokeStyle = SURF; ctx.lineWidth = 1.5; ctx.beginPath(); idx.forEach((i, m) => m ? ctx.lineTo(g.X(i), g.Y(top[m])) : ctx.moveTo(g.X(i), g.Y(top[m]))); ctx.stroke(); }
+        top.forEach((v, m) => base[m] = v);
+      }
+    }
+    if (c.hover != null) cross(ctx, g.X, c.hover, PAD.t, g.pb);
+  }, p => THEORIES.map((t, j) => [t.name, (p.w[j] * 100).toFixed(0) + '%', S[j]]).sort((a, b) => parseFloat(b[1]) - parseFloat(a[1])));
+
+  chart('c-skill', c => {
+    const { ctx, w, h } = prep(c.cv); const H = st.hist;
+    let lo = -0.2, hi = 0.4; for (const p of H) if (p.skill != null) { lo = Math.min(lo, p.skill); hi = Math.max(hi, p.skill); }
+    lo = Math.max(lo, -1);
+    const g = frame(ctx, w, h, lo, hi, niceTicks(lo, hi, 4), v => (v * 100).toFixed(0) + '%'); c.geo = g;
+    ctx.strokeStyle = '#4a4842'; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(PAD.l, g.Y(0)); ctx.lineTo(w - PAD.r, g.Y(0)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = MUTED; ctx.textAlign = 'left'; ctx.fillText('random walk', PAD.l + 4, g.Y(0) - 6);
+    line(ctx, H, g.X, g.Y, p => p.skill == null ? null : Math.max(lo, p.skill), GOLD, w);
+    if (c.hover != null && H[c.hover].skill != null) { cross(ctx, g.X, c.hover, PAD.t, g.pb); dot(ctx, g.X(c.hover), g.Y(Math.max(lo, H[c.hover].skill)), GOLD); }
+  }, p => [['Skill vs. random walk', p.skill == null ? '—' : (p.skill * 100).toFixed(1) + '%', GOLD], ['Direction right', p.hit == null ? '—' : (p.hit * 100).toFixed(0) + '%', null], ['Archetypes', p.nArch, null]]);
+
+  chart('c-habit', c => {
+    const { ctx, w, h } = prep(c.cv); const H = st.hist;
+    let hi = 0.5; for (const p of H) for (const v of p.hab) hi = Math.max(hi, v);
+    const g = frame(ctx, w, h, 0, hi * 1.05, niceTicks(0, hi * 1.05, 4), v => v.toFixed(1)); c.geo = g;
+    SIGNALS.forEach((_, k) => line(ctx, H, g.X, g.Y, p => p.hab[k], S[k], w));
+    if (c.hover != null) { cross(ctx, g.X, c.hover, PAD.t, g.pb); SIGNALS.forEach((_, k) => dot(ctx, g.X(c.hover), g.Y(H[c.hover].hab[k]), S[k])); }
+  }, p => SIGNALS.map((n, k) => [n, p.hab[k].toFixed(2), S[k]]).concat([['Loss scar (shadow)', p.sh[0].toFixed(2), null], ['Herd (shadow)', p.sh[1].toFixed(2), null], ['Dip reflex (shadow)', p.sh[2].toFixed(2), null]]));
+
+  chart('c-shadow', c => {
+    const { ctx, w, h } = prep(c.cv); const H = st.hist;
+    let lo = -0.2, hi = 0.2; for (const p of H) { lo = Math.min(lo, p.shTrue, p.shEst); hi = Math.max(hi, p.shTrue, p.shEst); }
+    lo = Math.max(lo, -1.2); hi = Math.min(hi, 1.2);
+    const g = frame(ctx, w, h, lo, hi, niceTicks(lo, hi, 4), v => v.toFixed(1)); c.geo = g;
+    const cl = v => Math.max(lo, Math.min(hi, v));
+    line(ctx, H, g.X, g.Y, p => cl(p.shTrue), S[6], w);
+    line(ctx, H, g.X, g.Y, p => cl(p.shEst), GOLD, w);
+    if (c.hover != null) { cross(ctx, g.X, c.hover, PAD.t, g.pb); const p = H[c.hover]; dot(ctx, g.X(c.hover), g.Y(cl(p.shTrue)), S[6]); dot(ctx, g.X(c.hover), g.Y(cl(p.shEst)), GOLD); }
+  }, p => [['Hidden truth', p.shTrue.toFixed(2), S[6]], ['Mind estimate', p.shEst.toFixed(2), GOLD], ['Total order flow', p.D.toFixed(2), null]]);
+
+  function drawAll() { for (const k in charts) charts[k].draw(charts[k]); }
+
+  function shadowCorr() {
+    const H = st.hist; if (H.length < 300) return null;
+    const a = H.slice(-500); let mx = 0, my = 0; for (const p of a) { mx += p.shTrue; my += p.shEst; } mx /= a.length; my /= a.length;
+    let sxy = 0, sxx = 0, syy = 0; for (const p of a) { sxy += (p.shTrue - mx) * (p.shEst - my); sxx += (p.shTrue - mx) ** 2; syy += (p.shEst - my) ** 2; }
+    return sxx * syy > 0 ? sxy / Math.sqrt(sxx * syy) : null;
+  }
+  function tiles() {
+    const p = st.hist[st.hist.length - 1];
+    el('t-skill').textContent = p && p.skill != null ? (p.skill >= 0 ? '+' : '') + (p.skill * 100).toFixed(0) + '%' : '–';
+    el('t-hit').textContent = p && p.hit != null ? (p.hit * 100).toFixed(0) + '%' : '–';
+    el('t-arch').textContent = st.mind.arch.length;
+    el('t-recall').textContent = st.mind.recalls;
+    el('t-purity').textContent = st.mind.arch.length ? (st.purity() * 100).toFixed(0) + '%' : '–';
+    { const cnt = [0,0,0,0,0]; let n = 0; for (const q of st.hist) if (q.arch >= 0) { cnt[q.reg]++; n++; }
+      el('t-base').textContent = n ? (Math.max(...cnt) / n * 100).toFixed(0) + '%' : '–'; }
+    const c = shadowCorr(); el('t-shcorr').textContent = c == null ? '–' : c.toFixed(2);
+    el('year').textContent = (st.t / 252).toFixed(1);
+  }
+  function voice() {
+    const p = st.hist[st.hist.length - 1]; if (!p) return;
+    const ranked = THEORIES.map((t, j) => [t.name, p.w[j]]).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    const A = p.arch >= 0 ? st.mind.arch[p.arch] : null;
+    const ord = n => n + (n % 10 === 1 && n % 100 !== 11 ? 'st' : n % 10 === 2 && n % 100 !== 12 ? 'nd' : n % 10 === 3 && n % 100 !== 13 ? 'rd' : 'th');
+    const call = (p.mf >= 0 ? '+' : '') + (p.mf * 100).toFixed(1) + '%';
+    const where = A ? `I'm in <b>${A.name} #${A.id}</b>, ${A.desc.toLowerCase()}. ${A.visits > 1 ? `I've been here before: this is my ${ord(A.visits)} visit, so I'm using what worked last time.` : 'First time I\'ve seen this one, so I\'m still learning it.'}` : 'Still watching. I don\'t know any market moods yet.';
+    el('voice').innerHTML = `Day ${st.t.toLocaleString()}. ${where} What explains this market best right now: ${ranked.map(([n, v]) => `${n} ${(v * 100).toFixed(0)}%`).join(', ')}. My next-week call: <b>${call}</b>. <span class="muted">Hidden truth, which I can't see: ${REGIMES[p.reg].name}.</span>`;
+  }
+  let libSig = '';
+  function renderLib() {
+    const arch = st.mind.arch;
+    const sig = arch.map(A => A.id + A.name + A.visits + Math.floor(A.n / 20)).join('|') + st.mind.cur;
+    if (sig === libSig) return; libSig = sig;
+    if (!arch.length) { el('lib').innerHTML = '<div class="muted">Nothing learned yet.</div>'; return; }
+    const w = (A) => { const L = A.L; let mn = Infinity; for (const v of L) mn = Math.min(mn, v); let best = 0; L.forEach((v, j) => { if (v < L[best]) best = j; }); return best; };
+    el('lib').innerHTML = arch.map((A, k) => {
+      const tr = st.archTruth(A), b = w(A);
+      return `<div class="arch ${k === st.mind.cur ? 'cur' : ''}"><div class="n">${A.name} #${A.id}</div><div class="m">${A.desc}</div>
+        <div class="row"><span class="m">Days lived</span><b>${A.n}</b></div>
+        <div class="row"><span class="m">Visits</span><b>${A.visits}</b></div>
+        <div class="row"><span class="m">Best theory here</span><b><i class="sq" style="background:${S[b]}"></i>${THEORIES[b].name}</b></div>
+        <div class="row"><span class="m">Turned out to be</span><b><i class="sq" style="background:${REGC[tr.reg]}"></i>${REGIMES[tr.reg].name} ${(tr.share * 100).toFixed(0)}%</b></div></div>`;
+    }).join('');
+  }
+
+  let frameN = 0;
+  function tick() {
+    const n = +el('speed').value;
+    for (let k = 0; k < n && st.t < DAYS; k++) st.step();
+    drawAll(); tiles();
+    if (frameN++ % 6 === 0) { voice(); renderLib(); }
+    if (st.t >= DAYS) { stop(); voice(); renderLib(); el('play').textContent = 'Run again'; return; }
+    raf = requestAnimationFrame(tick);
+  }
+  function stop() { running = false; cancelAnimationFrame(raf); el('play').textContent = st && st.t > 0 && st.t < DAYS ? 'Resume' : 'Run 12 years'; }
+  el('play').addEventListener('click', () => {
+    if (running) { stop(); return; }
+    if (st.t >= DAYS) fresh();
+    running = true; el('play').textContent = 'Pause'; raf = requestAnimationFrame(tick);
+  });
+  el('reset').addEventListener('click', () => { stop(); fresh(); });
+  el('crash').addEventListener('click', () => { if (st.t < DAYS) st.shock('crash'); });
+  el('bubble').addEventListener('click', () => { if (st.t < DAYS) st.shock('bubble'); });
+  window.addEventListener('resize', drawAll);
+  fresh();
+  if (location.hash === '#run') { el('speed').value = 40; el('v-speed').textContent = '40d'; el('play').click(); }
+})();
+</script>
+</body>
+</html>

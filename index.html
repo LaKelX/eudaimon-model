@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eudaimon Evolutionary Economy</title>
+<meta name="description" content="An evolutionary, agent-based economy: firms mutate and compete, households own or rent. Status quo vs. the Ownership Republic, same random seed.">
+<style>
+  :root { --bg:#0b0b0c; --panel:#141416; --line:#26262a; --text:#ecebe7; --muted:#9a978f; --gold:#c9a75e; --sq:#8d8a83; --rep:#c9a75e; --bad:#c2554b; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif; }
+  .wrap { max-width:1180px; margin:0 auto; padding:24px 16px 64px; }
+  header { border-bottom:1px solid var(--gold); padding-bottom:16px; margin-bottom:20px; }
+  .eyebrow { color:var(--gold); letter-spacing:.14em; font-size:12px; text-transform:uppercase; }
+  h1 { margin:6px 0 6px; font-size:clamp(26px,4.5vw,40px); letter-spacing:-.01em; }
+  .lede { color:var(--muted); max-width:760px; margin:0; }
+  .controls { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px; }
+  .ctl label { display:flex; justify-content:space-between; font-size:13px; color:var(--muted); }
+  .ctl label b { color:var(--text); font-weight:600; font-variant-numeric:tabular-nums; }
+  .ctl .hint { font-size:12px; color:var(--muted); margin-top:2px; }
+  input[type=range] { width:100%; accent-color:var(--gold); }
+  .bar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:14px 0 18px; }
+  button { background:var(--gold); color:#111; border:0; border-radius:8px; padding:9px 16px; font-weight:700; cursor:pointer; font-size:14px; }
+  button.ghost { background:transparent; color:var(--text); border:1px solid var(--line); }
+  .year { margin-left:auto; font-variant-numeric:tabular-nums; color:var(--muted); }
+  .year b { color:var(--text); font-size:20px; }
+  .legend { display:flex; gap:18px; font-size:13px; color:var(--muted); }
+  .sw { display:inline-block; width:14px; height:3px; vertical-align:middle; margin-right:6px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr)); gap:14px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .card h3 { margin:0; font-size:14px; font-weight:600; }
+  .card .sub { color:var(--muted); font-size:12px; margin:2px 0 8px; }
+  .nums { display:flex; gap:16px; font-variant-numeric:tabular-nums; font-size:13px; margin-bottom:6px; }
+  .nums span b { font-size:18px; }
+  canvas { width:100%; height:180px; display:block; }
+  canvas.tall { height:260px; }
+  .verdict { margin-top:14px; border-left:3px solid var(--gold); padding:10px 14px; background:var(--panel); border-radius:0 10px 10px 0; }
+  .two { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr)); gap:14px; margin-top:14px; }
+  ul { margin:6px 0 0; padding-left:18px; }
+  li { margin:4px 0; }
+  .muted { color:var(--muted); }
+  footer { margin-top:28px; color:var(--muted); font-size:12px; border-top:1px solid var(--line); padding-top:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav style="display:flex;gap:16px;font-size:13px;margin-bottom:14px"><a href="index.html" style="color:var(--gold);text-decoration:none">The Evolutionary Economy</a><a href="market.html" style="color:var(--muted);text-decoration:none">The Market Mind</a></nav>
+  <header>
+    <div class="eyebrow">Eudaimon Capitol · Evolutionary Economics · v0.1</div>
+    <h1>Two economies. Same luck. Different owners.</h1>
+    <p class="lede">Firms carry routines like genes: they mutate through R&amp;D, copy the best, and die when the market selects against them. Households earn wages and own capital, or don't. Both economies below run on the <em>same random seed</em>. The only difference is who owns the stake.</p>
+  </header>
+
+  <div class="controls">
+    <div class="ctl"><label>AI automation <b id="v-auto"></b></label><input id="auto" type="range" min="0" max="0.01" step="0.001" value="0.004"><div class="hint">Labor share lost per year</div></div>
+    <div class="ctl"><label>Bottleneck owners <b id="v-nb"></b></label><input id="nb" type="range" min="1" max="10" step="1" value="3"><div class="hint">Fewer owners = fatter chokepoint rents</div></div>
+    <div class="ctl"><label>Asset subsidy <b id="v-sub"></b></label><input id="sub" type="range" min="0.005" max="0.04" step="0.001" value="0.014"><div class="hint">% of GDP. Today ~1.4%, 70% to the top fifth</div></div>
+    <div class="ctl"><label>Stake dividend <b id="v-payout"></b></label><input id="payout" type="range" min="0" max="1" step="0.05" value="0.5"><div class="hint">Share of citizen-stake income paid as cash</div></div>
+    <div class="ctl"><label>Random seed <b id="v-seed"></b></label><input id="seed" type="range" min="1" max="50" step="1" value="7"><div class="hint">Change the luck. Same for both.</div></div>
+  </div>
+
+  <div class="bar">
+    <button id="play">Run 60 years</button>
+    <button class="ghost" id="reset">Reset</button>
+    <div class="legend"><span><i class="sw" style="background:var(--sq)"></i>Status quo</span><span><i class="sw" style="background:var(--rep)"></i>Ownership Republic</span></div>
+    <div class="year">Year <b id="year">0</b> / 60</div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><h3>Bottom half's share of all wealth</h3><div class="sub">Higher is better. Today's US: ~1–2.5%.</div><div class="nums" id="n-bottom50"></div><canvas id="c-b50"></canvas></div>
+    <div class="card"><h3>Wealth inequality (Gini)</h3><div class="sub">0 = equal, 1 = one owner holds everything.</div><div class="nums" id="n-gini"></div><canvas id="c-gini"></canvas></div>
+    <div class="card"><h3>GDP (year 0 = 1.0)</h3><div class="sub">Real output. Demand-constrained below capacity.</div><div class="nums" id="n-gdp"></div><canvas id="c-gdp"></canvas></div>
+    <div class="card"><h3>Unemployment</h3><div class="sub">Capacity the economy can't sell to its own people.</div><div class="nums" id="n-unemp"></div><canvas id="c-unemp"></canvas></div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h3>The firm landscape: evolution in real time</h3>
+    <div class="sub">Each bubble is a firm. Right = more productive. Up = higher markup. Size = market share. Brighter = later generation (descendants of survivors). Firms that fall below 0.7% share die and are replaced by mutated copies of winners.</div>
+    <canvas id="c-firms" class="tall"></canvas>
+  </div>
+
+  <div class="verdict" id="verdict"><b>Press Run.</b> <span class="muted">The verdict updates as the years pass.</span></div>
+
+  <div class="two">
+    <div class="card">
+      <h3>How it works</h3>
+      <ul>
+        <li><b>Variation:</b> firms spend on R&amp;D (more innovation, higher price) and imitate the leader.</li>
+        <li><b>Selection:</b> market share grows for firms with better productivity-to-price, a replicator rule from Nelson &amp; Winter (1982).</li>
+        <li><b>Retention:</b> dead firms are replaced by mutated copies of survivors.</li>
+        <li><b>Bottleneck:</b> every firm buys a scarce input (energy, chips, magnets). Fewer owners means higher rent.</li>
+        <li><b>AI:</b> automation shrinks labor's share. Owners of capital collect the difference.</li>
+        <li><b>Demand:</b> the rich save more of each dollar. Concentrated ownership means weaker demand.</li>
+        <li><b>The one switch:</b> the same asset subsidy goes to the top fifth (status quo) or into titled, universal stakes seeded heavier for the bottom half (Republic).</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Falsifiers: what would prove this wrong</h3>
+      <ul>
+        <li>If spending out of capital income doesn't fall as wealth rises, the demand channel disappears, and with it the GDP gain.</li>
+        <li>If seeded accounts are consumed early instead of held, the equality gain collapses.</li>
+        <li>At 0% dividend the Republic is fairer but <em>slower</em> than the status quo. Locked money isn't spent. We found this in our own model and we're publishing it.</li>
+        <li>Automation-driven unemployment rises in <em>both</em> economies. Ownership at 1.4% of GDP spreads the gains. It does not, by itself, stop the job loss.</li>
+      </ul>
+      <p class="muted" style="margin:8px 0 0;font-size:12px">Stylized annual model, 500 households, 30 firm slots. A tool for thinking, not a forecast. Every assumption is a slider or a line of open code.</p>
+    </div>
+  </div>
+
+  <footer>Eudaimon Capitol · Research · "The money is made owning bottlenecks, and so is the soul." · Model v0.1, Nov 2026</footer>
+</div>
+
+<script src="core.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const ids = ['auto','nb','sub','payout','seed'];
+const fmt = { auto:(v)=>(v*100).toFixed(1)+' pts', nb:(v)=>v, sub:(v)=>(v*100).toFixed(1)+'%', payout:(v)=>Math.round(v*100)+'%', seed:(v)=>v };
+let A, B, timer = null;
+const YEARS = 60;
+
+function opts(){ const o={}; ids.forEach(k=>o[k]=+$(k).value); return o; }
+function labels(){ ids.forEach(k=>$('v-'+k).textContent=fmt[k](+$(k).value)); }
+function reset(){
+  stop(); const o=opts();
+  A = EvoEcon.makeSim('status', o); B = EvoEcon.makeSim('republic', o);
+  A.step(); B.step(); draw();
+}
+function stop(){ if(timer){ clearInterval(timer); timer=null; } $('play').textContent = (A && A.t>1 && A.t<YEARS) ? 'Resume' : 'Run 60 years'; }
+function play(){
+  if (timer) { stop(); return; }
+  if (A.t >= YEARS) reset();
+  $('play').textContent = 'Pause';
+  timer = setInterval(()=>{ if (A.t >= YEARS) { stop(); $('play').textContent='Run again'; return; } A.step(); B.step(); draw(); }, 110);
+}
+
+function setup(c){
+  const dpr = window.devicePixelRatio||1, r = c.getBoundingClientRect();
+  c.width = r.width*dpr; c.height = r.height*dpr;
+  const x = c.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0); return [x, r.width, r.height];
+}
+function line(id, key, pct, lo){
+  const c=$(id), [x,w,h]=setup(c), pad={l:40,r:8,t:8,b:20};
+  const a=A.hist.map(d=>d[key]), b=B.hist.map(d=>d[key]);
+  let mn = lo!==undefined ? lo : Math.min(...a,...b), mx=Math.max(...a,...b);
+  if (mx-mn < 1e-6) mx = mn + (pct?0.01:0.1);
+  const pady=(mx-mn)*0.08; mn = lo!==undefined?lo:mn-pady; mx+=pady;
+  const X=(i)=>pad.l+(w-pad.l-pad.r)*i/(YEARS-1), Y=(v)=>pad.t+(h-pad.t-pad.b)*(1-(v-mn)/(mx-mn));
+  x.clearRect(0,0,w,h); x.font='11px -apple-system,sans-serif'; x.fillStyle=css('--muted'); x.strokeStyle=css('--line'); x.lineWidth=1;
+  for(let k=0;k<=3;k++){ const v=mn+(mx-mn)*k/3, yy=Y(v); x.beginPath(); x.moveTo(pad.l,yy); x.lineTo(w-pad.r,yy); x.stroke(); x.fillText(pct?(v*100).toFixed(v<0.1?1:0)+'%':v.toFixed(2), 2, yy+4); }
+  [0,20,40,59].forEach(i=>x.fillText(i, X(i)-4, h-5));
+  const path=(arr,col,wd)=>{ x.strokeStyle=col; x.lineWidth=wd; x.beginPath(); arr.forEach((v,i)=>i?x.lineTo(X(i),Y(v)):x.moveTo(X(i),Y(v))); x.stroke(); };
+  path(a, css('--sq'), 2); path(b, css('--rep'), 2.5);
+  const la=a[a.length-1], lb=b[b.length-1], f=(v)=>pct?(v*100).toFixed(1)+'%':v.toFixed(2);
+  $('n-'+key).innerHTML = `<span style="color:var(--sq)">Status quo <b>${f(la)}</b></span><span style="color:var(--rep)">Republic <b>${f(lb)}</b></span>`;
+}
+function firms(){
+  const c=$('c-firms'), [x,w,h]=setup(c), pad={l:40,r:10,t:10,b:22};
+  const F=B.firms; const As=F.map(f=>f.A);
+  const Ms=F.map(f=>f.mu); const amin=Math.min(...As)*0.97, amax=Math.max(...As)*1.03;
+  const mmin=Math.max(0,Math.min(...Ms)-0.03), mmax=Math.max(...Ms)+0.03;
+  const X=(v)=>pad.l+(w-pad.l-pad.r)*(v-amin)/(amax-amin||1), Y=(v)=>pad.t+(h-pad.t-pad.b)*(1-(v-mmin)/(mmax-mmin));
+  x.clearRect(0,0,w,h); x.font='11px -apple-system,sans-serif'; x.fillStyle=css('--muted');
+  x.fillText('↑ markup', 2, 12); x.fillText('productivity →', w-92, h-6);
+  const lead=F.reduce((m,f)=>f.f>m.f?f:m,F[0]); x.textAlign='right'; x.fillText(`Leader ${(lead.f*100).toFixed(0)}% share · gen ${lead.gen} · ${B.entries} firms born`, w-pad.r, 12); x.textAlign='left';
+  const gmax=Math.max(1,...F.map(f=>f.gen));
+  F.forEach(f=>{ const r=Math.min(4+Math.sqrt(f.f)*36, (h-pad.t-pad.b)/2.4), a=0.25+0.7*(f.gen/gmax);
+    const cx=Math.min(w-pad.r-r, Math.max(pad.l+r, X(f.A))), cy=Math.min(h-pad.b-r, Math.max(pad.t+r, Y(f.mu)));
+    x.beginPath(); x.arc(cx,cy,r,0,7); x.fillStyle=`rgba(201,167,94,${a.toFixed(2)})`; x.fill();
+    x.strokeStyle='rgba(236,235,231,.35)'; x.lineWidth=1; x.stroke(); });
+}
+function verdict(){
+  const a=A.hist[A.hist.length-1], b=B.hist[B.hist.length-1], t=A.t-1;
+  const dg=(b.gdp/a.gdp-1)*100, db=(b.bottom50/a.bottom50);
+  const gd = dg>=0 ? `<b style="color:var(--gold)">${dg.toFixed(1)}% bigger</b>` : `<b style="color:var(--bad)">${Math.abs(dg).toFixed(1)}% smaller</b>`;
+  $('verdict').innerHTML = `<b>Year ${t}.</b> The Republic's bottom half owns <b style="color:var(--gold)">${db.toFixed(1)}×</b> the share it owns under the status quo. Its economy is ${gd}. Gini ${a.gini.toFixed(2)} → ${b.gini.toFixed(2)}. Unemployment ${(a.unemp*100).toFixed(0)}% vs ${(b.unemp*100).toFixed(0)}%.` + (t>=YEARS-1 ? ` <span class="muted">Change the seed and run again. A claim that only works on one seed isn't a claim.</span>` : '');
+}
+function draw(){
+  $('year').textContent = A.t-1;
+  line('c-b50','bottom50',true,0); line('c-gini','gini',false); line('c-gdp','gdp',false); line('c-unemp','unemp',true,0);
+  firms(); verdict();
+}
+ids.forEach(k=>$(k).addEventListener('input',()=>{ labels(); reset(); }));
+$('play').onclick=play; $('reset').onclick=reset;
+window.addEventListener('resize', ()=>draw());
+labels(); reset();
+</script>
+</body>
+</html>
