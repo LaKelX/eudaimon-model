@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Lineage</title>
+<meta name="description" content="Radzicki's 2003 genealogy of economic thought, made interactive: who descends from whom, what the map leaves out, and where the Eudaimon model sits in the lineage.">
+<style>
+  :root { --bg:#0b0b0c; --panel:#141416; --line:#26262a; --text:#ecebe7; --muted:#9a978f; --gold:#c9a75e; --up:#3987e5; --miss:#6f6c66; }
+  * { box-sizing:border-box; }
+  html { color-scheme: dark; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif; }
+  .wrap { max-width:1180px; margin:0 auto; padding:24px 16px 64px; }
+  nav { display:flex; flex-wrap:wrap; gap:16px; font-size:13px; margin-bottom:14px; }
+  nav a { color:var(--muted); text-decoration:none; } nav a.on { color:var(--gold); }
+  header { border-bottom:1px solid var(--gold); padding-bottom:16px; margin-bottom:20px; }
+  .eyebrow { color:var(--gold); letter-spacing:.14em; font-size:12px; text-transform:uppercase; }
+  h1 { margin:6px 0 6px; font-size:clamp(26px,4.5vw,40px); letter-spacing:-.01em; }
+  h2 { font-size:20px; margin:34px 0 10px; }
+  h3 { font-size:15px; margin:0 0 4px; }
+  .lede { color:var(--muted); max-width:800px; margin:0; }
+  .bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px; }
+  button { background:transparent; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:7px 12px; font-size:13px; cursor:pointer; }
+  button.on { background:var(--gold); color:#111; border-color:var(--gold); font-weight:700; }
+  .legend { display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12px; color:var(--muted); margin:0 0 8px; }
+  .sq { display:inline-block; width:10px; height:10px; border-radius:2px; vertical-align:-1px; margin-right:6px; }
+  .mapbox { display:flex; flex-direction:column-reverse; gap:10px; }
+  .scroll { background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow-x:auto; }
+  svg { display:block; width:100%; min-width:900px; height:auto; }
+  .node { cursor:pointer; }
+  .node rect, .node ellipse { fill:#18181b; stroke:#3a3a40; stroke-width:1; transition:opacity .15s; }
+  .node text { fill:var(--text); font-size:10.5px; text-anchor:middle; dominant-baseline:central; pointer-events:none; }
+  .node.hub text { font-weight:700; fill:#9cc3f5; }
+  .node.school ellipse { stroke:#cfcdc6; stroke-width:1.6; fill:#141416; }
+  .node.school text { font-weight:650; font-size:11px; }
+  .node.miss rect { stroke:var(--miss); stroke-dasharray:4 3; fill:#121214; }
+  .node.miss text { fill:#b8b5ad; font-style:italic; }
+  .node.eud rect { fill:var(--gold); stroke:var(--gold); }
+  .node.eud text { fill:#111; font-weight:800; font-size:12px; }
+  .node.sel rect, .node.sel ellipse { stroke:#fff; stroke-width:2.5; }
+  .edge { fill:none; stroke:#4b4a47; stroke-width:1; transition:opacity .15s; }
+  .edge.miss { stroke:var(--miss); stroke-dasharray:4 3; }
+  .edge.eud { stroke:var(--gold); stroke-dasharray:5 3; stroke-width:1.3; }
+  .dim { opacity:.12; }
+  .edge.up { stroke:var(--up); stroke-width:2; opacity:1; }
+  .edge.down { stroke:var(--gold); stroke-width:2; opacity:1; }
+  .node.up rect, .node.up ellipse { stroke:var(--up); stroke-width:2; }
+  .node.down rect, .node.down ellipse { stroke:var(--gold); stroke-width:2; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; min-height:96px; }
+  .panel .cols { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr)); gap:4px 18px; }
+  .panel .who { font-size:18px; font-weight:700; }
+  .panel .tag { color:var(--gold); font-size:11px; letter-spacing:.12em; text-transform:uppercase; margin-top:10px; }
+  .panel p { margin:4px 0 0; font-size:14px; }
+  .panel .kin { font-size:13px; color:var(--muted); }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr)); gap:14px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px; }
+  .card .n { color:var(--gold); font-weight:800; font-size:13px; letter-spacing:.08em; }
+  .card p { margin:6px 0 0; font-size:14px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th { text-align:left; color:var(--muted); font-weight:500; font-size:12px; padding:6px; border-bottom:1px solid var(--line); }
+  td { padding:8px 6px; border-top:1px solid var(--line); vertical-align:top; }
+  td:first-child { font-weight:600; white-space:nowrap; }
+  .tblwrap { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:6px 10px; overflow-x:auto; }
+  .pedigree { border-left:3px solid var(--gold); background:var(--panel); padding:16px 18px; border-radius:0 10px 10px 0; font-size:17px; }
+  .muted { color:var(--muted); }
+  footer { margin-top:28px; color:var(--muted); font-size:12px; border-top:1px solid var(--line); padding-top:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav><a href="index.html">The Evolutionary Economy</a><a href="market.html">The Market Mind</a><a class="on" href="lineage.html">The Lineage</a></nav>
+  <header>
+    <div class="eyebrow">Eudaimon Capitol · Intellectual Lineage · v0.1</div>
+    <h1>Every idea has parents.</h1>
+    <p class="lede">Michael Radzicki's 2003 genealogy of economic thought: 250 years of who learned from whom, flowing from Quesnay and Smith down to seven modern schools. Tap anyone to trace their <span style="color:var(--up)">ancestors</span> and <span style="color:var(--gold)">descendants</span>. Then turn on what the map leaves out, and where the Eudaimon model plugs in.</p>
+  </header>
+
+  <div class="bar">
+    <button id="b-base" class="on">Radzicki 2003</button>
+    <button id="b-miss">+ What it misses</button>
+    <button id="b-eud">+ Eudaimon</button>
+    <button id="b-clear">Clear selection</button>
+  </div>
+  <div class="legend">
+    <span><i class="sq" style="background:#9cc3f5"></i>Hub thinker</span>
+    <span><i class="sq" style="border:1.6px solid #cfcdc6"></i>Modern school</span>
+    <span><i class="sq" style="border:1px dashed var(--miss)"></i>Missing from the 2003 map</span>
+    <span><i class="sq" style="background:var(--up)"></i>Ancestors</span>
+    <span><i class="sq" style="background:var(--gold)"></i>Descendants</span>
+  </div>
+  <div class="mapbox">
+    <div class="scroll"><svg id="map" viewBox="-12 0 1112 830" role="img" aria-label="Genealogy graph of economic thought"></svg></div>
+    <div class="panel" id="panel">
+      <div class="who">Tap a name</div>
+      <p class="muted">Start with <b>Schumpeter</b>, the thinker with the most arrows into evolutionary economics, or <b>Darwin</b>, the one non-economist the whole bottom-right of the map descends from.</p>
+    </div>
+  </div>
+
+  <h2>Seven readings of the map</h2>
+  <div class="cards">
+    <div class="card"><div class="n">I · THE MAP HAS A THESIS</div><p>Radzicki was a system-dynamics evolutionary economist arguing for his own field, so the drawing argues too. The left side (Chicago, Lucas, New Classical, Supply Side) ends in dead-end boxes with no arrows to the future. The bottom-right ovals point at each other in a dense web. It's a family tree drawn by the side that thinks it won. Read it as a claim, not a census.</p></div>
+    <div class="card"><div class="n">II · BIOLOGY CAME IN THROUGH ONE DOOR</div><p>Malthus → Darwin → Veblen. Malthus's population pressure gave Darwin natural selection. Veblen carried selection back into economics in 1898 and asked why economics wasn't an evolutionary science. Every oval on the right descends from that one loop out of economics and back. Evolutionary economics is economics that spent a century in biology and came home.</p></div>
+    <div class="card"><div class="n">III · PHYSICS CAME IN THROUGH THREE</div><p>Von Neumann (game theory, computation), Wiener (cybernetics, feedback) and Prigogine (thermodynamics, self-organization), with Georgescu-Roegen's entropy law feeding ecological economics. "You can't argue with thermodynamics" is not a slogan. It's a Georgescu-Roegen inheritance.</p></div>
+    <div class="card"><div class="n">IV · FOUR HUBS CARRY THE WEIGHT</div><p><b>Smith</b> starts everything, <b>Marx</b> splits it, <b>Keynes</b> is the busiest crossroads, and <b>Schumpeter</b> is the main source for the modern schools. Cut Keynes and the middle of the map falls apart. Cut Schumpeter and evolutionary economics loses its main parent. Hayek is the odd hub: claimed by the right through Chicago and the Austrians, and by the evolutionists through spontaneous order.</p></div>
+    <div class="card"><div class="n">V · THE SEVEN OVALS ARE ONE BLOC</div><p>Institutional, behavioral, evolutionary, post-Keynesian, ecological, agent-based and radical political economy all point at each other. They're not seven fields. They're one rebellion against a single assumption: the rational, representative agent at equilibrium. What they share is history, heterogeneous agents, bounded minds, power and limits.</p></div>
+    <div class="card"><div class="n">VI · THE REBELS WON BY BEING ABSORBED</div><p>Since 2003 the mainstream ate the bloc. Kahneman (2002) and Thaler (2017) won Nobels for behavioral economics. Ostrom won for institutions (2009). Central banks now run models with heterogeneous agents, and after 2008 everyone quotes Minsky. The dead-end boxes on the left didn't die. They mutated, which is evolutionary economics proving itself on its own discipline.</p></div>
+    <div class="card"><div class="n">VII · THE OPEN SEAT IS THE SYNTHESIS</div><p>No node on the map joins all seven ovals in one working system. Each school owns a piece: habits, routines, demand, fragility, entropy, ownership, agents. The unclaimed position is the model that runs them together and lets them be tested against each other. That is the seat Eudaimon is built for.</p></div>
+  </div>
+
+  <h2>Where your model descends from</h2>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Ancestor</th><th>Idea inherited</th><th>Where it lives in Eudaimon</th></tr></thead>
+    <tbody id="inherit"></tbody>
+  </table></div>
+
+  <h2>What the 2003 map leaves out</h2>
+  <div class="cards">
+    <div class="card"><h3>Missing people</h3><p><b>Kahneman &amp; Tversky</b> (loss aversion) aren't on the map, a year after the Nobel. <b>Ostrom</b> (governing the commons). <b>Polanyi</b> (markets embedded in society). <b>Penrose</b> (how firms grow). <b>Sen</b> (capability and justice). <b>Soros</b> (reflexivity). <b>Graham</b> and <b>Fama</b>, the poles of value and efficient markets. And <b>Ibn Khaldun</b>, who wrote on the division of labor, tax cycles and the rise and fall of dynasties 400 years before Smith.</p></div>
+    <div class="card"><h3>Missing since 2003</h3><p>Piketty (r &gt; g), Modern Monetary Theory, mechanism and market design, network and complexity economics, Mazzucato's entrepreneurial state, and the economics of AI and automation, which is the question this whole lineage now has to answer.</p></div>
+    <div class="card"><h3>Who isn't in the room</h3><p>One woman, Joan Robinson, among about 90 names. Nobody from the Global South. No one who studied the economy from the bottom up, from the position of those who own nothing. The map is a record of who got to write, not of who had the ideas.</p></div>
+  </div>
+
+  <h2>The pedigree line</h2>
+  <div class="pedigree">“My work descends from Schumpeter’s creative destruction, Veblen’s habits, Minsky’s fragility and Hayek’s knowledge problem, computed one agent at a time. Ricardo showed that scarce land collects the rent. I show who collects it when the scarce thing is a chip, a power line or a water right.”</div>
+  <p class="muted" style="margin-top:8px">That's how you introduce yourself to an economist: a lineage they recognize, plus the one question it hasn't answered.</p>
+
+  <footer>Map adapted and simplified from Michael J. Radzicki, 2003, “Mr. Hamilton, Mr. Forrester, and a Foundation for Evolutionary Economics,” <i>Journal of Economic Issues</i> 37(1): 133–73, p. 135. The “Hamilton” in the title is Walton Hamilton, the institutionalist who named institutional economics. Edges were transcribed by hand and some are simplified. Dashed nodes and the Eudaimon layer are additions by Eudaimon Capitol, not part of the original. · Angelo Greene</footer>
+</div>
+
+<script>
+(function () {
+  // [id, label, x, y, kind, note, eudaimon-role]
+  const N = [
+    ['quesnay','Quesnay',660,18,'p','Physiocrat. The Tableau économique (1758), the first circular-flow model of an economy.','The circular flow: wages → spending → output in the demand closure.'],
+    ['smith','Smith',505,48,'hub','Division of labor, the invisible hand, markets as coordination without a coordinator.','Firms compete for share; nobody plans the outcome.'],
+    ['say','Say',370,84,'p','Say’s law: supply creates its own demand.','Rejected: the model’s output is demand-constrained.'],
+    ['malthus','Malthus',490,86,'p','Population pressure against fixed resources. Gave Darwin the mechanism.',''],
+    ['ricardo','Ricardo',615,86,'p','Rent goes to the owners of scarce land. Comparative advantage.','The bottleneck rent: fewer owners of the chokepoint means fatter rents (muB).'],
+    ['mill','Mill',540,108,'p','Utilitarian liberal political economy.',''],
+    ['darwin','Darwin',592,108,'p','Variation, selection, retention. Not an economist; the root of every evolutionary school.','Variation (R&D, mutation), selection (replicator), retention (entry copies winners).'],
+    ['marshall','Marshall\nPigou / Jevons, Menger\nWalras, Pareto',395,148,'hub','The marginal revolution and partial/general equilibrium: the core of the neoclassical toolkit.',''],
+    ['wicksell','Wicksell,\nCassel',520,156,'p','Natural rate of interest; cumulative credit processes.',''],
+    ['marx','Marx',705,138,'hub','Capital, class and ownership of the means of production. Crises as built into the system.','Who owns the capital decides who gets the income as automation rises.'],
+    ['bohm','Böhm-Bawerk,\nWieser',300,200,'p','Austrian capital theory: roundabout production, time preference.',''],
+    ['keynes','Keynes',490,202,'hub','Output set by effective demand; unemployment as an equilibrium; uncertainty and animal spirits.','GDP = demand-constrained; unemployment is capacity people can’t afford to buy.'],
+    ['vonneumann','von Neumann,\nMorgenstern',568,210,'p','Game theory (1944), growth models, the computer itself.','The simulation exists because computation exists.'],
+    ['leontief','Leontief',650,218,'p','Input-output: every sector feeds every other.','Next build: sector input-output for power and water bottlenecks.'],
+    ['veblen','Veblen,\nCommons\n& Mitchell',762,205,'p','Institutions are “settled habits of thought.” Asked in 1898 why economics wasn’t an evolutionary science.','Habits and shadow habits in the Market Mind are Veblen’s idea, coded.'],
+    ['kalecki','Kalecki',712,244,'p','Workers spend what they get; capitalists get what they spend. The profit equation.','Different propensities to spend by wealth: the rich save more, demand falls.'],
+    ['schumpeter','Schumpeter',855,244,'hub','Creative destruction: innovation, not price competition, drives capitalism.','R&D-driven innovation, firm death and mutated entry.'],
+    ['knight','Knight',210,254,'p','Risk vs. uncertainty; the Chicago founding generation.',''],
+    ['mises','Mises',272,240,'p','Austrian school; calculation problem under socialism.',''],
+    ['hayek','Hayek',250,272,'hub','Prices carry knowledge no planner can hold. Spontaneous order.','The Mind sees only the tape; prices are its whole knowledge.'],
+    ['samuelson','Samuelson, Hicks,\nModigliani, Tobin',345,272,'p','The neoclassical synthesis: Keynes in equilibrium form.',''],
+    ['harrod','Harrod,\nDomar',485,268,'p','Knife-edge growth models.',''],
+    ['wiener','Wiener',545,248,'p','Cybernetics: systems that steer by feedback.','The loop: the Mind publishes, the crowd trades, the Mind re-reads.'],
+    ['duesenberry','Duesenberry,\nSimon',718,290,'p','Relative income; bounded rationality and satisficing.','Traders follow rules and habits, not optimization.'],
+    ['friedman','Friedman, Schwartz,\nMeltzer, Brunner,\nCagan',92,305,'p','Monetarism: money supply drives nominal income.',''],
+    ['stigler','Stigler,\nCoase, Becker',212,305,'p','Price theory, transaction costs, economics of everything.',''],
+    ['nash','Nash',545,292,'p','Equilibrium in non-cooperative games.','Political game theory track.'],
+    ['ayres','Ayres, Galbraith,\nMyrdal, Hamilton',792,305,'p','American institutionalism: power, technology, cumulative causation.','Ownership regime is a policy choice, not nature.'],
+    ['dobb','Dobb, Baran,\nSweezy, Mandel',1040,262,'p','Monopoly capital and Marxian political economy.',''],
+    ['schelling','Schelling',545,322,'p','Focal points, commitment, segregation from tiny preferences.','Political game theory track.'],
+    ['boulding','Boulding, Georgescu-\nRoegen, Ayres',865,328,'p','Entropy law: the economy is a thermodynamic system.','Bottlenecks as physical limits that can’t be engineered away.'],
+    ['prigogine','Prigogine, Nicolis,\nAllen, Tushman,\nRomanelli',940,372,'p','Self-organization far from equilibrium; punctuated change in organizations.','Regimes and archetypes: order emerges and breaks.'],
+    ['nelson','Nelson, Winter, Iwai,\nEliasson, Silverberg,\nDosi',1022,322,'p','An Evolutionary Theory of Economic Change (1982): routines as genes, search, selection.','The firm engine in core.js is a Nelson–Winter model.'],
+    ['kirzner','Kirzner,\nRothbard',235,360,'p','Entrepreneurial discovery; radical Austrians.',''],
+    ['solow','Solow,\nSwan',318,345,'p','Exogenous growth model.',''],
+    ['cyert','Cyert,\nMarch, Day',762,345,'p','The behavioral theory of the firm.',''],
+    ['monetarism','Monetarism',62,385,'p','',''],
+    ['chicago','Chicago\nSchool',148,392,'hub','Free-market price theory and rational choice.',''],
+    ['muth','Muth',202,380,'p','Rational expectations (1961).','Rejected: agents learn, they don’t start out knowing the model.'],
+    ['tustin','Tustin, Phillips,\nAllen',395,372,'p','Control engineering applied to the economy (Phillips’s hydraulic computer).',''],
+    ['robinson','Robinson, Kaldor,\nPasinetti',495,365,'p','Cambridge post-Keynesians: distribution and growth.',''],
+    ['sraffa','Sraffa',565,388,'p','Production of commodities by means of commodities.',''],
+    ['neosynth','NeoClassical\nSynthesis, Growth Theory\n& Traditional Business\nCycle Theory',255,418,'p','The mid-century mainstream.',''],
+    ['hodgson','Hodgson',808,392,'p','Modern institutional-evolutionary synthesis.',''],
+    ['goodwin','Goodwin',395,420,'p','Predator–prey cycles between wages and profits.','Labor share vs. capital share dynamics.'],
+    ['phelps','Phelps',347,412,'p','Natural rate of unemployment; microfoundations.',''],
+    ['neoric','Neo\nRicardian',578,420,'p','',''],
+    ['akerlof','Akerlof, Thaler,\nFrank, Williamson',728,415,'p','Information asymmetry, nudges, relative status, transaction costs.','Shadow habits: biases traders never chose.'],
+    ['clower','Clower',425,462,'p','Dual-decision hypothesis; disequilibrium macro.',''],
+    ['weintraub','Weintraub, Davidson,\nEichner, Minsky',530,470,'p','Post-Keynesians. Minsky: stability breeds instability.','“Fragility” theory in the Mind; euphoria → crisis in the regime chain.'],
+    ['costanza','Costanza,\nDaly',640,445,'p','Steady-state and ecological economics.',''],
+    ['england','England',902,440,'p','Evolutionary concepts in economics (1994).',''],
+    ['rostow','Rostow,\nDavid',962,445,'p','Stages of growth; path dependence (QWERTY).','Same seed, different history: path dependence is the whole point.'],
+    ['lucas','Lucas,\nBarro',145,450,'p','Rational expectations macro; the Lucas critique.','Lucas critique, honored: the Mind’s forecast changes the market it forecasts.'],
+    ['laffer','Laffer,\nFeldstein,\nBoskin',50,492,'p','Supply-side tax economics.',''],
+    ['alchian','Alchian,\nHirshleifer',282,488,'p','Alchian (1950): the market selects firms that act as if they maximize. Evolution in disguise.','Selection does the optimizing; agents don’t need to.'],
+    ['holland','Holland, Miller,\nArthur, Langton',540,512,'p','Complex adaptive systems; Santa Fe artificial stock market (1997); increasing returns.','The Market Mind’s direct ancestor: adaptive agents with pattern memory in a synthetic market.'],
+    ['sherman','Sherman, Weisskopf,\nBowles, Gintis,\nOsborne, Foley,\nMarglin',1032,505,'p','Radical political economy: power, ownership, inequality.','Citizen stakes: the Ownership Republic.'],
+    ['leijon','Leijonhufvud',438,505,'p','Coordination failures; the economy as an adaptive system.',''],
+    ['dornbusch','Dornbusch,\nFisher, Taylor',368,522,'p','Open-economy macro; the Taylor rule.',''],
+    ['egt','Evolutionary\nGame Theory',545,560,'p','Strategies replicate by payoff. Maynard Smith meets Nash.','Replicator dynamics on firm shares; agent genomes reproduce by wealth.'],
+    ['tesfatsion','Tesfatsion, Axtell, Epstein,\nAxelrod, Lane, Potts, DeVany',570,595,'p','Agent-based computational economics; Sugarscape; evolution of cooperation.','Both Eudaimon simulations are agent-based.'],
+    ['romer','Romer',175,528,'p','Endogenous growth: ideas are non-rival.',''],
+    ['prescott','Prescott,\nKydland',250,528,'p','Real business cycles.',''],
+    ['ucla','UCLA\nTradition',382,550,'p','',''],
+    ['ncgt','New Classical\nGrowth Theory',182,592,'p','',''],
+    ['rbc','Real Business\nCycle Theory',258,592,'p','',''],
+    ['nke','New\nKeynesian\nEconomics',410,590,'p','',''],
+    ['supply','Supply Side\nEconomics',52,640,'p','',''],
+    ['nce','New Classical\nEconomics',222,640,'p','',''],
+    ['nie','New\nInstitutional\nEconomics',305,645,'p','Property rights and transaction costs.',''],
+    ['austrian','Austrian\nEconomics',110,512,'s','Markets as processes of discovery.',''],
+    ['institutional','Institutional\nEconomics',815,452,'s','Institutions and power shape outcomes.','Subsidy routing and ownership regimes.'],
+    ['behavioral','Behavioral\nEconomics',742,512,'s','Real humans: biases, heuristics, limited attention.','Habits and shadow habits.'],
+    ['evolutionary','Evolutionary\nEconomics',905,512,'s','Variation, selection, retention of routines and technologies.','The core engine.'],
+    ['ecological','Ecological\nEconomics',640,525,'s','The economy inside the biosphere’s limits.','The gap: power and water bottlenecks are next.'],
+    ['postk','Post-Keynesian\nEconomics',772,580,'s','Demand, distribution, money, fragility.','Demand closure + Minsky fragility.'],
+    ['radical','Radical\nPolitical\nEconomics',940,625,'s','Class, power and ownership.','The Ownership Republic.'],
+    ['abm','Agent-Based\nComputational\nEconomics',682,645,'s','Economies grown from the bottom up in silico.','Both simulations.'],
+    // missing (m)
+    ['ibnkhaldun','Ibn Khaldun\n(1377)',360,22,'m','The Muqaddimah: division of labor, the tax curve, the rise and fall of dynasties. Four centuries before Smith.','Regime cycles: solidarity builds, luxury decays, fall.'],
+    ['graham','Graham',120,705,'m','Security Analysis (1934): intrinsic value and margin of safety.','“Value” theory in the Mind.'],
+    ['fama','Fama',200,705,'m','Efficient markets: prices reflect available information.','“Random walk” theory, the baseline the Mind must beat.'],
+    ['kahneman','Kahneman,\nTversky',820,705,'m','Prospect theory: losses hurt about twice as much as gains feel good. Nobel 2002, missing from the 2003 map.','Loss scar shadow habit.'],
+    ['soros','Soros',600,705,'m','Reflexivity: beliefs move prices, prices move fundamentals.','“Reflexivity” theory + the published-forecast loop.'],
+    ['ostrom','Ostrom',920,705,'m','Governing the Commons (Nobel 2009): communities can manage shared resources without state or market.','How citizen stakes could be governed.'],
+    ['polanyi','Polanyi',990,205,'m','The Great Transformation: markets are embedded in society, and disembedding them provokes backlash.',''],
+    ['penrose','Penrose',1040,440,'m','The Theory of the Growth of the Firm (1959). Firms as bundles of resources.',''],
+    ['sen','Sen',1010,705,'m','Capabilities, justice and famine: who gets to command food, not how much exists.','Justice as capability, not just income.'],
+    ['piketty','Piketty',1010,770,'m','r > g: returns on capital outgrow the economy, so wealth concentrates.','What the status-quo run shows.'],
+    ['mazzucato','Mazzucato',920,770,'m','The entrepreneurial state: public money funds the risky frontier.',''],
+    ['mmt','MMT',780,770,'m','Modern Monetary Theory: a currency issuer is constrained by inflation, not money.',''],
+    ['mechdesign','Mechanism\nDesign',470,705,'m','Hurwicz, Myerson, Roth: design the rules so self-interest produces the outcome you want.','Designing the citizen-stake charter.'],
+    ['eudaimon','EUDAIMON',690,780,'eud','Evolutionary economy + Market Mind: the seven ovals run as one system, plus the bottleneck thesis.',''],
+  ];
+  const E0 = [
+    ['quesnay','smith'],['quesnay','marx'],['quesnay','leontief'],
+    ['smith','say'],['smith','malthus'],['smith','ricardo'],['smith','marshall'],
+    ['say','marshall'],['say','laffer'],['say','keynes'],
+    ['malthus','darwin'],['malthus','keynes'],['malthus','wicksell'],['ricardo','mill'],['ricardo','marx'],['ricardo','sraffa'],['mill','marshall'],
+    ['darwin','veblen'],
+    ['marshall','keynes'],['marshall','samuelson'],['marshall','bohm'],['marshall','wicksell'],['marshall','chicago'],
+    ['wicksell','keynes'],['wicksell','hayek'],['wicksell','vonneumann'],
+    ['marx','veblen'],['marx','kalecki'],['marx','schumpeter'],['marx','dobb'],['marx','leontief'],
+    ['bohm','mises'],['bohm','schumpeter'],['mises','hayek'],['hayek','kirzner'],['kirzner','austrian'],['hayek','samuelson'],['hayek','chicago'],['hayek','nie'],
+    ['knight','stigler'],['stigler','chicago'],['friedman','monetarism'],['friedman','chicago'],['monetarism','lucas'],['chicago','lucas'],['muth','lucas'],
+    ['lucas','romer'],['lucas','prescott'],['romer','ncgt'],['prescott','rbc'],['ncgt','nce'],['rbc','nce'],['laffer','supply'],
+    ['keynes','samuelson'],['keynes','harrod'],['keynes','robinson'],['keynes','clower'],['keynes','weintraub'],['keynes','tustin'],
+    ['samuelson','neosynth'],['solow','neosynth'],['phelps','neosynth'],['harrod','solow'],['harrod','goodwin'],['samuelson','dornbusch'],['dornbusch','nke'],['solow','phelps'],
+    ['kalecki','robinson'],['robinson','sraffa'],['sraffa','neoric'],['neoric','postk'],['weintraub','postk'],['robinson','weintraub'],['tustin','goodwin'],['schumpeter','goodwin'],
+    ['vonneumann','nash'],['nash','schelling'],['schelling','egt'],['vonneumann','holland'],['wiener','holland'],['wiener','tustin'],['holland','tesfatsion'],['tesfatsion','abm'],
+    ['clower','leijon'],['alchian','leijon'],['leijon','tesfatsion'],['alchian','ucla'],['alchian','nie'],['leijon','ucla'],['stigler','nie'],
+    ['veblen','ayres'],['veblen','duesenberry'],['ayres','institutional'],['duesenberry','cyert'],['cyert','akerlof'],['akerlof','behavioral'],['duesenberry','nelson'],
+    ['schumpeter','nelson'],['schumpeter','boulding'],['schumpeter','prigogine'],['schumpeter','rostow'],['schumpeter','cyert'],
+    ['nelson','evolutionary'],['prigogine','evolutionary'],['rostow','evolutionary'],['england','evolutionary'],['hodgson','institutional'],['hodgson','evolutionary'],
+    ['boulding','costanza'],['costanza','ecological'],['boulding','ecological'],
+    ['dobb','sherman'],['sherman','radical'],['leontief','ecological'],['egt','evolutionary'],
+    ['institutional','evolutionary'],['institutional','behavioral'],['behavioral','evolutionary'],['behavioral','postk'],['evolutionary','postk'],['ecological','behavioral'],
+    ['abm','evolutionary'],['abm','behavioral'],['radical','evolutionary'],['postk','radical'],['abm','institutional'],['radical','nie'],['austrian','evolutionary'],
+  ];
+  const EM = [
+    ['ibnkhaldun','smith'],['graham','chicago'],['fama','chicago'],['kahneman','behavioral'],['soros','postk'],['ostrom','institutional'],['polanyi','institutional'],
+    ['penrose','evolutionary'],['sen','radical'],['piketty','radical'],['schumpeter','mazzucato'],['mazzucato','evolutionary'],['postk','mmt'],['nash','mechdesign'],['wicksell','soros'],
+  ];
+  const EE = [
+    ['evolutionary','eudaimon'],['abm','eudaimon'],['behavioral','eudaimon'],['postk','eudaimon'],['institutional','eudaimon'],['radical','eudaimon'],['ecological','eudaimon'],
+    ['austrian','eudaimon'],['soros','eudaimon'],['kahneman','eudaimon'],['fama','eudaimon'],['graham','eudaimon'],['mechdesign','eudaimon'],['ricardo','eudaimon'],
+  ];
+
+  const byId = {}; N.forEach(n => byId[n[0]] = { id:n[0], label:n[1], x:n[2], y:n[3], kind:n[4], note:n[5], role:n[6] });
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.getElementById('map');
+  const mk = (t, a) => { const e = document.createElementNS(svgNS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const defs = mk('defs', {});
+  [['a', '#4b4a47'], ['am', '#6f6c66'], ['ae', '#c9a75e'], ['au', '#3987e5'], ['ad', '#c9a75e']].forEach(([id, c]) => {
+    const m = mk('marker', { id, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse' });
+    m.appendChild(mk('path', { d: 'M0,0 L10,5 L0,10 z', fill: c })); defs.appendChild(m);
+  });
+  svg.appendChild(defs);
+  const gE = mk('g', {}), gN = mk('g', {}); svg.appendChild(gE); svg.appendChild(gN);
+
+  // node geometry
+  for (const n of Object.values(byId)) {
+    const lines = n.label.split('\n');
+    const w = Math.max(...lines.map(l => l.length)) * (n.kind === 'eud' ? 8 : 5.9) + (n.kind === 's' ? 26 : 12);
+    const h = lines.length * 12.5 + (n.kind === 's' ? 18 : 7);
+    n.w = w; n.h = h; n.lines = lines;
+  }
+  function edgePt(a, b) { // point on a's boundary toward b
+    const dx = b.x - a.x, dy = b.y - a.y; if (!dx && !dy) return [a.x, a.y];
+    if (a.kind === 's') { const rx = a.w / 2, ry = a.h / 2; const t = 1 / Math.sqrt((dx * dx) / (rx * rx) + (dy * dy) / (ry * ry)); return [a.x + dx * t, a.y + dy * t]; }
+    const sx = (a.w / 2 + 2) / Math.abs(dx || 1e-9), sy = (a.h / 2 + 2) / Math.abs(dy || 1e-9), t = Math.min(sx, sy);
+    return [a.x + dx * t, a.y + dy * t];
+  }
+  const edges = [];
+  function addEdges(list, cls) {
+    for (const [f, t] of list) {
+      const a = byId[f], b = byId[t]; if (!a || !b) { console.warn('bad edge', f, t); continue; }
+      const [x1, y1] = edgePt(a, b), [x2, y2] = edgePt(b, a);
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+      const bend = Math.min(40, L * 0.12);
+      const cx = mx - dy / L * bend, cy = my + dx / L * bend;
+      const p = mk('path', { d: `M${x1.toFixed(1)},${y1.toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}`, class: 'edge ' + cls,
+        'marker-end': `url(#${cls === 'miss' ? 'am' : cls === 'eud' ? 'ae' : 'a'})` });
+      gE.appendChild(p);
+      edges.push({ f, t, el: p, cls });
+    }
+  }
+  addEdges(E0, 'base'); addEdges(EM, 'miss'); addEdges(EE, 'eud');
+
+  for (const n of Object.values(byId)) {
+    const cls = { p: '', hub: 'hub', s: 'school', m: 'miss', eud: 'eud' }[n.kind];
+    const g = mk('g', { class: 'node ' + cls, tabindex: 0, role: 'button', 'aria-label': n.label.replace(/\n/g, ' ') });
+    if (n.kind === 's') g.appendChild(mk('ellipse', { cx: n.x, cy: n.y, rx: n.w / 2, ry: n.h / 2 }));
+    else g.appendChild(mk('rect', { x: n.x - n.w / 2, y: n.y - n.h / 2, width: n.w, height: n.h, rx: n.kind === 'eud' ? 8 : 4 }));
+    n.lines.forEach((l, i) => { const t = mk('text', { x: n.x, y: n.y + (i - (n.lines.length - 1) / 2) * 12.5 }); t.textContent = l; g.appendChild(t); });
+    g.addEventListener('click', e => { e.stopPropagation(); select(n.id); });
+    g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(n.id); } });
+    gN.appendChild(g); n.el = g;
+  }
+
+  // layers
+  let showMiss = false, showEud = false, sel = null;
+  const visibleNode = n => n.kind === 'm' ? showMiss : n.kind === 'eud' ? showEud : true;
+  const visibleEdge = e => visibleNode(byId[e.f]) && visibleNode(byId[e.t]) && (e.cls !== 'eud' || showEud) && (e.cls !== 'miss' || showMiss);
+  function layout() {
+    for (const n of Object.values(byId)) n.el.style.display = visibleNode(n) ? '' : 'none';
+    for (const e of edges) e.el.style.display = visibleEdge(e) ? '' : 'none';
+    if (sel && !visibleNode(byId[sel])) sel = null;
+    svg.setAttribute('viewBox', `-12 0 1112 ${showMiss || showEud ? 830 : 690}`);
+    paint();
+  }
+  function walk(start, dir) {
+    const seen = new Set([start]), q = [start];
+    while (q.length) { const c = q.shift(); for (const e of edges) { if (!visibleEdge(e)) continue; const [a, b] = dir === 'up' ? [e.t, e.f] : [e.f, e.t]; if (a === c && !seen.has(b)) { seen.add(b); q.push(b); } } }
+    seen.delete(start); return seen;
+  }
+  function paint() {
+    const up = sel ? walk(sel, 'up') : new Set(), down = sel ? walk(sel, 'down') : new Set();
+    for (const n of Object.values(byId)) {
+      n.el.classList.remove('dim', 'up', 'down', 'sel');
+      if (!sel) continue;
+      if (n.id === sel) n.el.classList.add('sel'); else if (up.has(n.id)) n.el.classList.add('up'); else if (down.has(n.id)) n.el.classList.add('down'); else n.el.classList.add('dim');
+    }
+    for (const e of edges) {
+      e.el.classList.remove('dim', 'up', 'down');
+      const base = e.cls === 'miss' ? 'am' : e.cls === 'eud' ? 'ae' : 'a';
+      e.el.setAttribute('marker-end', `url(#${base})`);
+      if (!sel) continue;
+      const isUp = (up.has(e.f) || e.f === sel) && (up.has(e.t) || e.t === sel) && e.f !== sel;
+      const isDown = (down.has(e.t) || e.t === sel) && (down.has(e.f) || e.f === sel) && e.t !== sel;
+      if (isUp) { e.el.classList.add('up'); e.el.setAttribute('marker-end', 'url(#au)'); }
+      else if (isDown) { e.el.classList.add('down'); e.el.setAttribute('marker-end', 'url(#ad)'); }
+      else e.el.classList.add('dim');
+    }
+    const P = document.getElementById('panel');
+    if (!sel) { P.innerHTML = '<div class="who">Tap a name</div><p class="muted">Start with <b>Schumpeter</b>, the thinker with the most arrows into evolutionary economics, or <b>Darwin</b>, the one non-economist the whole bottom-right of the map descends from.</p>'; return; }
+    const n = byId[sel];
+    const names = s => [...s].filter(id => visibleNode(byId[id])).map(id => byId[id].label.split('\n').join(' ')).slice(0, 14).join(' · ') + (s.size > 14 ? ` · +${s.size - 14} more` : '');
+    P.innerHTML = `<div class="who">${n.label.split('\n').join(' ')}</div>
+      ${n.kind === 'm' ? '<div class="tag" style="color:#b8b5ad">Missing from the 2003 map</div>' : ''}
+      ${n.note ? `<p>${n.note}</p>` : ''}
+      ${n.role ? `<div class="tag">In the Eudaimon model</div><p>${n.role}</p>` : ''}
+      <div class="cols"><div><div class="tag" style="color:var(--up)">Ancestors · ${up.size}</div><p class="kin">${up.size ? names(up) : 'A root of the map.'}</p></div>
+      <div><div class="tag">Descendants · ${down.size}</div><p class="kin">${down.size ? names(down) : 'An end point, for now.'}</p></div></div>`;
+  }
+  function select(id) { sel = sel === id ? null : id; paint(); }
+  svg.addEventListener('click', () => { sel = null; paint(); });
+  const B = id => document.getElementById(id);
+  B('b-miss').addEventListener('click', () => { showMiss = !showMiss; B('b-miss').classList.toggle('on', showMiss); layout(); });
+  B('b-eud').addEventListener('click', () => { showEud = !showEud; B('b-eud').classList.toggle('on', showEud); if (showEud && !showMiss) { showMiss = true; B('b-miss').classList.add('on'); } layout(); });
+  B('b-clear').addEventListener('click', () => { sel = null; paint(); });
+  B('b-base').addEventListener('click', () => { showMiss = showEud = false; B('b-miss').classList.remove('on'); B('b-eud').classList.remove('on'); layout(); });
+  const qs = new URLSearchParams(location.search);
+  if (qs.get('all')) { B('b-eud').click(); }
+  layout();
+  if (qs.get('sel') && byId[qs.get('sel')]) select(qs.get('sel'));
+
+  // inheritance table
+  const rows = ['darwin','veblen','schumpeter','nelson','ricardo','marx','keynes','kalecki','weintraub','hayek','duesenberry','akerlof','kahneman','holland','wiener','soros','sherman','lucas','boulding']
+    .map(id => byId[id]).filter(n => n.role);
+  document.getElementById('inherit').innerHTML = rows.map(n => `<tr><td>${n.label.split('\n').join(' ')}</td><td class="muted">${n.note}</td><td>${n.role}</td></tr>`).join('');
+})();
+</script>
+</body>
+</html>
