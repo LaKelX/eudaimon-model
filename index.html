@@ -52,7 +52,7 @@
 </head>
 <body>
 <div class="wrap">
-  <nav style="display:flex;gap:16px;font-size:13px;margin-bottom:14px"><a href="index.html" style="color:var(--gold);text-decoration:none">The Evolutionary Economy</a><a href="market.html" style="color:var(--muted);text-decoration:none">The Market Mind</a><a href="lineage.html" style="color:var(--muted);text-decoration:none">The Lineage</a></nav>
+  <nav style="display:flex;gap:16px;font-size:13px;margin-bottom:14px"><a href="index.html" style="color:var(--gold);text-decoration:none">The Evolutionary Economy</a><a href="market.html" style="color:var(--muted);text-decoration:none">The Market Mind</a><a href="lineage.html" style="color:var(--muted);text-decoration:none">The Lineage</a><a href="reality.html" style="color:var(--muted);text-decoration:none">Reality Board</a></nav>
   <header>
     <div class="eyebrow">Eudaimon Capitol · Evolutionary Economics · v0.2</div>
     <h1>Three economies. Same luck. Different owners.</h1>
@@ -67,6 +67,7 @@
     <div class="ctl"><label>Random seed <b id="v-seed"></b></label><input id="seed" type="range" min="1" max="50" step="1" value="7"><div class="hint">Change the luck. Same for all three.</div></div>
     <div class="ctl"><label>Grid build limit <b id="v-build"></b></label><input id="build" type="range" min="0.01" max="0.1" step="0.005" value="0.05"><div class="hint">New capacity per year. Permits, interconnection, electricians.</div></div>
     <div class="ctl"><label>Landscape shocks <b id="v-shocks"></b></label><input id="shocks" type="range" min="0" max="3" step="0.25" value="1"><div class="hint">Fuel spikes, climate disasters, AI power surges</div></div>
+    <div class="ctl"><label>Ownership Party message</label><select id="message" style="width:100%;background:#0e0e10;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:6px;margin-top:4px"><option value="defend">Defend citizens' interests</option><option value="overthrow">Overthrow the elite</option></select><div class="hint">Voter effects from a conjoint experiment. See Reality Board.</div></div>
   </div>
 
   <div class="bar">
@@ -147,7 +148,7 @@ let A, B, D, timer = null;
 const YEARS = 60;
 const RUNS = () => [['Status quo', A, css('--sq'), 2], ['Republic', B, css('--rep'), 2.5], ['Democracy', D, css('--dem'), 2]];
 
-function opts(){ const o={}; ids.forEach(k=>o[k]=+$(k).value); return o; }
+function opts(){ const o={}; ids.forEach(k=>o[k]=+$(k).value); o.message=$('message').value; return o; }
 function labels(){ ids.forEach(k=>$('v-'+k).textContent=fmt[k](+$(k).value)); }
 function reset(){
   stop(); const o=opts();
@@ -266,6 +267,7 @@ function draw(){
   pol(); firms(); events(); verdict(); attachTips();
 }
 ids.forEach(k=>$(k).addEventListener('input',()=>{ labels(); reset(); }));
+$('message').addEventListener('change', reset);
 $('play').onclick=play; $('reset').onclick=reset;
 window.addEventListener('resize', ()=>draw());
 labels(); reset();

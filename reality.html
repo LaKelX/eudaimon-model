@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reality Board</title>
+<meta name="description" content="The real US and Texas economy read like an options chain: every indicator as a diverging bar against its own 25-year history, peer-country comparisons, model-vs-reality calibration, and what voters actually reward.">
+<style>
+  :root { --bg:#0b0b0c; --panel:#141416; --line:#26262a; --grid:#1f1f23; --text:#ecebe7; --muted:#9a978f; --gold:#c9a75e;
+    --fav:#3987e5; --unf:#d95926; --neu:#6f6c66; --us:#c9a75e; --tx:#3987e5; }
+  * { box-sizing:border-box; }
+  html { color-scheme: dark; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif; }
+  .wrap { max-width:1180px; margin:0 auto; padding:24px 16px 64px; }
+  nav { display:flex; flex-wrap:wrap; gap:16px; font-size:13px; margin-bottom:14px; }
+  nav a { color:var(--muted); text-decoration:none; } nav a.on { color:var(--gold); }
+  header { border-bottom:1px solid var(--gold); padding-bottom:16px; margin-bottom:20px; }
+  .eyebrow { color:var(--gold); letter-spacing:.14em; font-size:12px; text-transform:uppercase; }
+  h1 { margin:6px 0 6px; font-size:clamp(26px,4.5vw,40px); letter-spacing:-.01em; }
+  h2 { font-size:20px; margin:34px 0 4px; }
+  .secsub { color:var(--muted); margin:0 0 12px; max-width:860px; font-size:14px; }
+  .lede { color:var(--muted); max-width:820px; margin:0; }
+  .asof { color:var(--muted); font-size:12px; margin-top:8px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .legend { display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12px; color:var(--muted); margin-bottom:8px; }
+  .sq { display:inline-block; width:10px; height:10px; border-radius:2px; vertical-align:-1px; margin-right:6px; }
+  .sw { display:inline-block; width:12px; height:3px; border-radius:2px; vertical-align:middle; margin-right:6px; }
+  /* GEX board */
+  .net { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
+  .tile { background:#101012; border:1px solid var(--line); border-radius:10px; padding:10px 12px; min-width:170px; flex:1; }
+  .tile .k { color:var(--muted); font-size:12px; } .tile .v { font-size:22px; font-weight:700; font-variant-numeric:tabular-nums; } .tile .d { color:var(--muted); font-size:11px; }
+  .gex { display:grid; grid-template-columns:minmax(150px,1.1fr) 34px minmax(160px,2fr) minmax(92px,.8fr); align-items:center; column-gap:10px; }
+  .gex .cat { grid-column:1/-1; color:var(--gold); font-size:11px; letter-spacing:.12em; text-transform:uppercase; padding:12px 0 4px; border-bottom:1px solid var(--line); margin-bottom:2px; }
+  .gex .row { display:contents; cursor:pointer; }
+  .gex .row > div { padding:4px 0; border-bottom:1px solid #1a1a1d; }
+  .gex .row:hover > div, .gex .row.sel > div { background:#1a1a1e; }
+  .gex .lab { font-size:13px; padding-left:6px !important; }
+  .gex .reg { font-size:10px; font-weight:700; color:#111; text-align:center; border-radius:4px; padding:1px 0 !important; margin:3px 0; }
+  .gex .val { font-size:13px; text-align:right; font-variant-numeric:tabular-nums; padding-right:6px !important; }
+  .gex .val small { display:block; color:var(--muted); font-size:10px; }
+  .barbox { position:relative; height:22px; }
+  .barbox .mid { position:absolute; left:50%; top:0; bottom:0; border-left:1px solid #4a4842; }
+  .barbox .g1 { position:absolute; top:0; bottom:0; border-left:1px dashed #2c2c30; }
+  .barbox .bar { position:absolute; top:5px; height:12px; border-radius:2px; }
+  .barbox .z { position:absolute; top:3px; font-size:10px; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .axis { display:grid; grid-template-columns:minmax(150px,1.1fr) 34px minmax(160px,2fr) minmax(92px,.8fr); column-gap:10px; font-size:10px; color:var(--muted); margin-top:4px; }
+  .axis .ticks { position:relative; height:14px; }
+  .axis .ticks span { position:absolute; transform:translateX(-50%); }
+  @media (max-width:640px) { .gex, .axis { grid-template-columns:minmax(110px,1fr) 28px minmax(110px,1.4fr) 76px; column-gap:6px; } .gex .lab { font-size:12px; } }
+  /* detail chart */
+  canvas { width:100%; height:240px; display:block; cursor:crosshair; }
+  .card { position:relative; }
+  .tip { position:absolute; pointer-events:none; background:#0e0e10; border:1px solid var(--line); border-radius:8px; padding:7px 10px; font-size:12px; line-height:1.45; display:none; z-index:5; min-width:150px; box-shadow:0 6px 20px rgba(0,0,0,.5); }
+  .tip .h { color:var(--muted); } .tip .r { display:flex; justify-content:space-between; gap:12px; } .tip .r span:last-child { font-variant-numeric:tabular-nums; }
+  /* triad */
+  .triad { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr)); gap:14px; }
+  .triad h3 { margin:0 0 6px; font-size:15px; }
+  .dotrow { margin:10px 0 2px; }
+  .dotrow .t { display:flex; justify-content:space-between; font-size:12px; }
+  .dotrow .t b { font-weight:600; }
+  .strip { position:relative; height:26px; border-bottom:1px solid var(--line); }
+  .strip .d { position:absolute; top:8px; width:10px; height:10px; margin-left:-5px; border-radius:50%; background:#5b5850; border:2px solid var(--panel); }
+  .strip .d.us { background:var(--gold); width:12px; height:12px; margin-left:-6px; top:7px; z-index:2; }
+  .strip .d:hover::after { content:attr(data-l); position:absolute; bottom:14px; left:50%; transform:translateX(-50%); white-space:nowrap; background:#0e0e10; border:1px solid var(--line); padding:2px 6px; border-radius:4px; font-size:11px; color:var(--text); }
+  .strip .lo, .strip .hi { position:absolute; bottom:-15px; font-size:10px; color:var(--muted); }
+  .strip .hi { right:0; }
+  /* calibration */
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th { text-align:left; color:var(--muted); font-weight:500; font-size:12px; padding:6px; border-bottom:1px solid var(--line); }
+  td { padding:8px 6px; border-top:1px solid var(--line); vertical-align:top; font-variant-numeric:tabular-nums; }
+  .tblwrap { overflow-x:auto; }
+  .ok { color:#5fb37a; } .warn { color:#d9a441; } .bad { color:#e66767; }
+  /* political gex */
+  .pgex { display:grid; grid-template-columns:minmax(180px,1.4fr) minmax(200px,2fr) 54px; column-gap:10px; align-items:center; }
+  .pgex .cat { grid-column:1/-1; color:var(--gold); font-size:11px; letter-spacing:.12em; text-transform:uppercase; padding:12px 0 4px; border-bottom:1px solid var(--line); }
+  .pgex .lab { font-size:13px; padding:4px 0; border-bottom:1px solid #1a1a1d; }
+  .pgex .lab .star { color:var(--gold); }
+  .pgex .barbox { border-bottom:1px solid #1a1a1d; }
+  .pgex .ci { position:absolute; top:10px; height:2px; background:#8d8a83; }
+  .pgex .pt { position:absolute; top:6px; width:10px; height:10px; margin-left:-5px; border-radius:50%; background:var(--text); }
+  .pgex .num { font-size:12px; text-align:right; color:var(--muted); font-variant-numeric:tabular-nums; border-bottom:1px solid #1a1a1d; padding:4px 0; }
+  @media (max-width:640px) { .pgex { grid-template-columns:minmax(120px,1fr) minmax(120px,1.3fr) 44px; } .pgex .lab { font-size:12px; } }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr)); gap:14px; margin-top:14px; }
+  .cards .panel p { margin:6px 0 0; font-size:14px; }
+  .cards .n { color:var(--gold); font-weight:800; font-size:12px; letter-spacing:.08em; }
+  .muted { color:var(--muted); }
+  footer { margin-top:28px; color:var(--muted); font-size:12px; border-top:1px solid var(--line); padding-top:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav><a href="index.html">The Evolutionary Economy</a><a href="market.html">The Market Mind</a><a href="lineage.html">The Lineage</a><a class="on" href="reality.html">Reality Board</a></nav>
+  <header>
+    <div class="eyebrow">Eudaimon Capitol · Reality Board · live data</div>
+    <h1>The real economy, read like an options chain.</h1>
+    <p class="lede">Every indicator is a strike. Each bar shows how far today sits from its own 25-year history, in standard deviations. Blue means the pressure helps people, orange means it hurts. US and Texas side by side, refreshed weekly from the Federal Reserve, the World Bank and the UN.</p>
+    <div class="asof" id="asof">Loading data…</div>
+  </header>
+
+  <h2>Pressure board</h2>
+  <p class="secsub">Like a GEX chart: the long bars are where the pressure sits. Tap any row to open its full history below.</p>
+  <div class="panel">
+    <div class="net" id="net"></div>
+    <div class="legend"><span><i class="sq" style="background:var(--fav)"></i>Favorable vs. history</span><span><i class="sq" style="background:var(--unf)"></i>Unfavorable</span><span><i class="sq" style="background:var(--neu)"></i>Neutral (rates, population)</span><span><i class="sq" style="background:var(--us)"></i>US</span><span><i class="sq" style="background:var(--tx)"></i>Texas</span></div>
+    <div class="gex" id="gex"></div>
+    <div class="axis"><div></div><div></div><div class="ticks" id="ticks"></div><div></div></div>
+  </div>
+
+  <div class="panel card" style="margin-top:14px">
+    <h3 id="d-title" style="margin:0;font-size:15px">History</h3>
+    <div class="muted" id="d-sub" style="font-size:12px;margin:2px 0 8px"></div>
+    <div class="legend" id="d-legend"></div>
+    <canvas id="c-detail"></canvas><div class="tip"></div>
+  </div>
+
+  <h2>Economic · Demographic · Social</h2>
+  <p class="secsub">The three circles of development, with the United States (gold) placed among its peers: China, Germany, Japan, India, Mexico and the world average. Hover a dot to see who it is. Latest year available for each.</p>
+  <div class="triad" id="triad"></div>
+
+  <h2>Model vs. reality</h2>
+  <p class="secsub">A model earns trust by showing where it's wrong. The Evolutionary Economy's starting point, scored against measured data. Green: within 15%. Amber: within 40%. Red: further off.</p>
+  <div class="panel tblwrap"><table><thead><tr><th>Measure</th><th>Reality</th><th>Model (year 0)</th><th>Gap</th><th>What it means</th></tr></thead><tbody id="calib"></tbody></table></div>
+
+  <h2>Political GEX: what voters reward</h2>
+  <p class="secsub">A conjoint experiment with German voters. Each dot is the probability that a candidate holding that position gets chosen, with 50% as the neutral line and whiskers showing uncertainty. Values were read from the chart you shared. ★ marks the Ownership Party's platform, which the Evolutionary Economy's democracy run now uses.</p>
+  <div class="panel">
+    <div class="legend"><span><i class="sq" style="background:var(--fav)"></i>Rewarded</span><span><i class="sq" style="background:var(--unf)"></i>Punished</span><span><span style="color:var(--gold)">★</span> Ownership Party position</span></div>
+    <div class="pgex" id="pgex"></div>
+    <div class="axis" style="grid-template-columns:minmax(180px,1.4fr) minmax(200px,2fr) 54px"><div></div><div class="ticks" id="pticks"></div><div></div></div>
+  </div>
+  <div class="cards">
+    <div class="panel"><div class="n">THE WINNING FORMULA</div><p>The strongest single position is <b>somewhat higher taxes on the rich (59%)</b>, stronger than "much higher" (57%). The largest penalty for a populist message goes to <b>"overthrow the political elite" (40%)</b>. "Defend citizens' interests" wins (53%). Voters want the rich to pay more. They don't want a revolution. Reform beats rupture.</p></div>
+    <div class="panel"><div class="n">EXTREMES LOSE ON BOTH SIDES</div><p>On refugees, EU withdrawal (38%) and "admit a great many" (37%) are among the most punished positions on the board. Some kinds of moderation pay. On globalization voters barely care (47–51%), so it's not a battlefield. Spend your words where the bars are long.</p></div>
+    <div class="panel"><div class="n">WIRED INTO THE MODEL</div><p>In the democracy run, the Ownership Party's tax-the-rich platform and its message now shift popularity using these effects, discounted for real elections. Over 30 random histories, the "defend citizens" message governs <b id="gov-defend">~70%</b> of years. "Overthrow the elite" governs <b id="gov-over">~42%</b>. The message is worth almost three decades of power.</p></div>
+  </div>
+
+  <h2>Where political economy is argued</h2>
+  <div class="cards" style="margin-top:6px">
+    <div class="panel"><div class="n">THE NETWORK YOU SHARED</div><p>A co-membership map of international political economy research networks: IPES (International Political Economy Society, mostly US), IPEG (the UK's British International Studies Association group), CPERN (the European Sociological Association's critical political economy network), AIPEN (Australia) and PEIO (the political economy of international organizations conference). The core is the US, UK, Canada, Australia and Northwestern Europe. Most of the world sits on the edge, attached by a single thin line.</p></div>
+    <div class="panel"><div class="n">WHAT IT MEANS FOR YOU</div><p>The ideas that shape policy are made in a handful of rooms. You get into them the same way you got here: a working model, public data, honest falsifiers. The thin-line countries are the opening. Mexico, India, Kazakhstan and Egypt are under-studied, and that's where an outsider's work can be first rather than fifteenth.</p></div>
+  </div>
+
+  <footer>Data: Federal Reserve Bank of St. Louis (FRED) incl. BEA, BLS, Federal Reserve Distributional Financial Accounts, Penn World Table; World Bank WDI; UNDP Human Development Report 2025. Refreshed weekly by GitHub Actions (<code>data/fetch_reality.py</code>). Conjoint values transcribed from a shared chart (source not shown in the image). Eudaimon Capitol · Angelo Greene · Not investment advice.</footer>
+</div>
+
+<script src="core.js"></script>
+<script>
+(async function () {
+  const $ = id => document.getElementById(id);
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  let D;
+  try { D = await (await fetch('data/reality.json', { cache: 'no-cache' })).json(); }
+  catch (e) { $('asof').textContent = 'Could not load data/reality.json. Open this page from a web server, not the file system.'; return; }
+  $('asof').textContent = `Data fetched ${D.fetched.replace('T', ' ').replace('Z', ' UTC')} · ${Object.keys(D.fred).length} FRED series · ${Object.keys(D.wb).length} World Bank indicators · HDI ${D.hdi.USA ? D.hdi.USA[D.hdi.USA.length - 1][0] : ''}`;
+
+  // ── Pressure board ──
+  const SKIP = new Set(['GDP', 'A091RC1Q027SBEA']);
+  const ORDER = ['Economic', 'Power', 'Fiscal', 'Ownership', 'Social', 'Demographic'];
+  const fmtV = (s, v) => s.unit === '$' ? '$' + Math.round(v).toLocaleString() : s.unit === 'share' ? (v * 100).toFixed(1) + '%' : s.unit === '$B/yr' ? '$' + (v / 1000).toFixed(2) + 'T' : (s.transform === 'yoy' && v > 0 ? '+' : '') + v.toFixed(Math.abs(v) < 10 ? 1 : 0) + '%';
+  const rows = [];
+  for (const [id, s] of Object.entries(D.fred)) {
+    if (SKIP.has(id) || !s.obs.length) continue;
+    const vals = s.obs.map(o => o[1]);
+    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const sd = Math.sqrt(vals.reduce((a, b) => a + (b - mean) ** 2, 0) / vals.length) || 1;
+    const [date, last] = s.obs[s.obs.length - 1];
+    const z = (last - mean) / sd;
+    const tone = s.good === 0 ? 'neu' : (z * s.good >= 0 ? 'fav' : 'unf');
+    rows.push({ id, s, z, last, date, mean, tone });
+  }
+  const zc = z => Math.max(-3, Math.min(3, z));
+  let sel = null;
+  function renderBoard() {
+    let html = '';
+    for (const cat of ORDER) {
+      const rs = rows.filter(r => r.s.category === cat).sort((a, b) => Math.abs(b.z) - Math.abs(a.z));
+      if (!rs.length) continue;
+      html += `<div class="cat">${cat}</div>`;
+      for (const r of rs) {
+        const zz = zc(r.z), left = zz >= 0 ? 50 : 50 + zz / 3 * 50, width = Math.abs(zz) / 3 * 50;
+        const col = r.tone === 'fav' ? css('--fav') : r.tone === 'unf' ? css('--unf') : css('--neu');
+        const zl = zz >= 0 ? `left:calc(${50 + width}% + 4px)` : `right:calc(${50 + width}% + 4px)`;
+        html += `<div class="row ${sel === r.id ? 'sel' : ''}" data-id="${r.id}" title="Mean since 2000: ${fmtV(r.s, r.mean)}">
+          <div class="lab">${r.s.label}</div>
+          <div><div class="reg" style="background:${r.s.region === 'TX' ? css('--tx') : css('--us')}">${r.s.region}</div></div>
+          <div class="barbox"><div class="g1" style="left:${50 - 50 / 3}%"></div><div class="g1" style="left:${50 + 50 / 3}%"></div><div class="mid"></div>
+            <div class="bar" style="left:${left}%;width:${Math.max(0.6, width)}%;background:${col}"></div><div class="z" style="${zl}">${r.z >= 0 ? '+' : ''}${r.z.toFixed(1)}σ</div></div>
+          <div class="val">${fmtV(r.s, r.last)}<small>${r.date.slice(0, 7)}</small></div></div>`;
+      }
+    }
+    $('gex').innerHTML = html;
+    $('gex').querySelectorAll('.row').forEach(el => el.addEventListener('click', () => { sel = el.dataset.id; renderBoard(); detail(sel); }));
+  }
+  $('ticks').innerHTML = [-3, -2, -1, 0, 1, 2, 3].map(v => `<span style="left:${50 + v / 3 * 50}%">${v > 0 ? '+' : ''}${v}σ</span>`).join('');
+  const fav = rows.filter(r => r.tone === 'fav'), unf = rows.filter(r => r.tone === 'unf');
+  const net = rows.filter(r => r.s.good !== 0).reduce((a, r) => a + zc(r.z) * r.s.good, 0) / rows.filter(r => r.s.good !== 0).length;
+  const worst = unf.slice().sort((a, b) => Math.abs(b.z) - Math.abs(a.z))[0], best = fav.slice().sort((a, b) => Math.abs(b.z) - Math.abs(a.z))[0];
+  $('net').innerHTML = `<div class="tile"><div class="k">Net pressure</div><div class="v" style="color:${net >= 0 ? css('--fav') : css('--unf')}">${net >= 0 ? '+' : ''}${net.toFixed(2)}σ</div><div class="d">Average favorable deviation, all scored indicators</div></div>
+    <div class="tile"><div class="k">Favorable / unfavorable</div><div class="v">${fav.length} / ${unf.length}</div><div class="d">Indicators on each side of their history</div></div>
+    ${worst ? `<div class="tile"><div class="k">Biggest pain</div><div class="v" style="font-size:17px">${worst.s.region} ${worst.s.label}</div><div class="d">${fmtV(worst.s, worst.last)} · ${worst.z >= 0 ? '+' : ''}${worst.z.toFixed(1)}σ vs. 25-yr history</div></div>` : ''}
+    ${best ? `<div class="tile"><div class="k">Biggest tailwind</div><div class="v" style="font-size:17px">${best.s.region} ${best.s.label}</div><div class="d">${fmtV(best.s, best.last)} · ${best.z >= 0 ? '+' : ''}${best.z.toFixed(1)}σ vs. 25-yr history</div></div>` : ''}`;
+
+  // ── Detail chart (line, hover) ──
+  const PAIRS = { UNRATE: 'TXUR', TXUR: 'UNRATE', PAYEMS: 'TXNA', TXNA: 'PAYEMS', GDPC1: 'TXRGSP', TXRGSP: 'GDPC1', POPTHM: 'TXPOP', TXPOP: 'POPTHM', MEHOINUSA672N: 'MEHOINUSTXA672N', MEHOINUSTXA672N: 'MEHOINUSA672N' };
+  const cv = $('c-detail'), tip = cv.parentElement.querySelector('.tip');
+  let cur = null, hoverT = null;
+  function detail(id) {
+    const s = D.fred[id]; const ids = [id]; if (PAIRS[id] && D.fred[PAIRS[id]]) ids.push(PAIRS[id]);
+    ids.sort((a, b) => (D.fred[a].region === 'US' ? -1 : 1));
+    cur = ids.map(k => ({ k, s: D.fred[k], col: D.fred[k].region === 'TX' ? css('--tx') : css('--us'), pts: D.fred[k].obs.map(([d, v]) => [Date.parse(d), v]) }));
+    $('d-title').textContent = s.label + (ids.length > 1 ? ': US vs. Texas' : ` (${s.region})`);
+    $('d-sub').textContent = `${s.transform === 'yoy' ? 'Year-over-year change, ' : ''}since 2000 · source series ${ids.join(', ')} (FRED)`;
+    $('d-legend').innerHTML = ids.length > 1 ? cur.map(c => `<span><i class="sw" style="background:${c.col}"></i>${c.s.region === 'TX' ? 'Texas' : 'United States'}</span>`).join('') : '';
+    drawDetail();
+  }
+  function drawDetail() {
+    if (!cur) return;
+    const r = cv.getBoundingClientRect(), dpr = devicePixelRatio || 1;
+    cv.width = r.width * dpr; cv.height = r.height * dpr;
+    const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); const w = r.width, h = r.height, P = { l: 52, r: 10, t: 8, b: 22 };
+    const all = cur.flatMap(c => c.pts);
+    const t0 = Math.min(...all.map(p => p[0])), t1 = Math.max(...all.map(p => p[0]));
+    let lo = Math.min(...all.map(p => p[1])), hi = Math.max(...all.map(p => p[1])); const pad = (hi - lo) * 0.08 || 1; lo -= pad; hi += pad;
+    const X = t => P.l + (w - P.l - P.r) * (t - t0) / (t1 - t0 || 1), Y = v => P.t + (h - P.t - P.b) * (1 - (v - lo) / (hi - lo));
+    x.font = '11px -apple-system, Inter, sans-serif'; x.strokeStyle = css('--grid'); x.fillStyle = css('--muted'); x.lineWidth = 1;
+    const s0 = cur[0].s, f = v => fmtV(s0, v);
+    for (let k = 0; k <= 4; k++) { const v = lo + (hi - lo) * k / 4, y = Math.round(Y(v)) + .5; x.beginPath(); x.moveTo(P.l, y); x.lineTo(w - P.r, y); x.stroke(); x.textAlign = 'right'; x.fillText(f(v), P.l - 6, y + 4); }
+    if (lo < 0 && hi > 0 && s0.transform === 'yoy') { x.strokeStyle = '#4a4842'; x.beginPath(); x.moveTo(P.l, Y(0)); x.lineTo(w - P.r, Y(0)); x.stroke(); }
+    x.textAlign = 'center'; const y0 = new Date(t0).getUTCFullYear(), y1 = new Date(t1).getUTCFullYear();
+    for (let y = Math.ceil(y0 / 5) * 5; y <= y1; y += 5) x.fillText(y, X(Date.UTC(y, 0, 1)), h - 6);
+    for (const c of cur) { x.strokeStyle = c.col; x.lineWidth = 2; x.lineJoin = 'round'; x.beginPath(); c.pts.forEach(([t, v], i) => i ? x.lineTo(X(t), Y(v)) : x.moveTo(X(t), Y(v))); x.stroke(); }
+    if (hoverT != null) {
+      x.strokeStyle = '#5a5850'; x.lineWidth = 1; x.beginPath(); x.moveTo(Math.round(X(hoverT)) + .5, P.t); x.lineTo(Math.round(X(hoverT)) + .5, h - P.b); x.stroke();
+      for (const c of cur) { const p = nearest(c.pts, hoverT); if (p) { x.fillStyle = c.col; x.strokeStyle = css('--panel'); x.lineWidth = 2; x.beginPath(); x.arc(X(p[0]), Y(p[1]), 4, 0, 7); x.fill(); x.stroke(); } }
+    }
+    cv._X = { X, t0, t1, P, w };
+  }
+  const nearest = (pts, t) => { let b = null, bd = Infinity; for (const p of pts) { const d = Math.abs(p[0] - t); if (d < bd) { bd = d; b = p; } } return bd < 400 * 864e5 ? b : null; };
+  cv.addEventListener('mousemove', e => {
+    if (!cur || !cv._X) return; const r = cv.getBoundingClientRect(), { P, w, t0, t1 } = cv._X;
+    const t = t0 + (e.clientX - r.left - P.l) / (w - P.l - P.r) * (t1 - t0); if (t < t0 || t > t1) { hoverT = null; tip.style.display = 'none'; drawDetail(); return; }
+    hoverT = t; drawDetail();
+    const rowsH = cur.map(c => { const p = nearest(c.pts, t); return p ? `<div class="r"><span><i class="sq" style="background:${c.col}"></i>${c.s.region === 'TX' ? 'Texas' : 'US'}</span><span>${fmtV(c.s, p[1])}</span></div>` : ''; }).join('');
+    const p0 = nearest(cur[0].pts, t);
+    tip.innerHTML = `<div class="h">${p0 ? new Date(p0[0]).toISOString().slice(0, 7) : ''}</div>${rowsH}`; tip.style.display = 'block';
+    const pr = cv.parentElement.getBoundingClientRect(); let left = e.clientX - pr.left + 14; if (left + tip.offsetWidth > pr.width - 4) left = e.clientX - pr.left - tip.offsetWidth - 14;
+    tip.style.left = Math.max(4, left) + 'px'; tip.style.top = (cv.offsetTop + 6) + 'px';
+  });
+  cv.addEventListener('mouseleave', () => { hoverT = null; tip.style.display = 'none'; drawDetail(); });
+  window.addEventListener('resize', drawDetail);
+  sel = (rows.slice().sort((a, b) => Math.abs(b.z) - Math.abs(a.z))[0] || {}).id || 'UNRATE';
+  renderBoard(); detail(sel);
+
+  // ── Triad (Venn circles) ──
+  const NAMES = { USA: 'United States', CHN: 'China', DEU: 'Germany', JPN: 'Japan', IND: 'India', MEX: 'Mexico', WLD: 'World' };
+  const fmtWB = (ind, v) => ind === 'NY.GDP.MKTP.CD' ? '$' + (v / 1e12).toFixed(1) + 'T' : ind === 'SP.POP.TOTL' ? (v / 1e6 >= 1000 ? (v / 1e9).toFixed(2) + 'B' : Math.round(v / 1e6) + 'M') : ind === 'SP.DYN.TFRT.IN' ? v.toFixed(2) : ind === 'HDI' ? v.toFixed(3) : v.toFixed(1) + (/(ZS|ZG)$/.test(ind) ? '%' : '');
+  function strip(ind, label, series) {
+    const latest = Object.entries(series).map(([c, s]) => [c, s[s.length - 1]]).filter(([, p]) => p);
+    if (!latest.length) return '';
+    const vals = latest.map(([, p]) => p[1]); const logS = ind === 'NY.GDP.MKTP.CD' || ind === 'SP.POP.TOTL';
+    const tr = v => logS ? Math.log10(v) : v; const lo = Math.min(...vals.map(tr)), hi = Math.max(...vals.map(tr));
+    const pos = v => 4 + 92 * (tr(v) - lo) / (hi - lo || 1);
+    const us = latest.find(([c]) => c === 'USA');
+    const dots = latest.map(([c, p]) => `<span class="d ${c === 'USA' ? 'us' : ''}" style="left:${pos(p[1])}%" data-l="${NAMES[c]}: ${fmtWB(ind, p[1])} (${p[0]})"></span>`).join('');
+    const minC = latest.reduce((a, b) => (b[1][1] < a[1][1] ? b : a)), maxC = latest.reduce((a, b) => (b[1][1] > a[1][1] ? b : a));
+    return `<div class="dotrow"><div class="t"><span>${label}</span><b>${us ? 'US ' + fmtWB(ind, us[1][1]) + ` <span class="muted" style="font-weight:400">(${us[1][0]})</span>` : '<span class="muted">US not reported</span>'}</b></div>
+      <div class="strip">${dots}<span class="lo">${NAMES[minC[0]]}</span><span class="hi">${NAMES[maxC[0]]}</span></div></div><div style="height:12px"></div>`;
+  }
+  const CATS = [['Economic', '#e66767'], ['Demographic', '#2fb5b0'], ['Social', '#5fb37a']];
+  $('triad').innerHTML = CATS.map(([cat, col]) => {
+    let h = `<div class="panel" style="border-top:3px solid ${col}"><h3>${cat}</h3>`;
+    for (const [ind, w] of Object.entries(D.wb)) if (w.category === cat) h += strip(ind, w.label, w.series);
+    if (cat === 'Social' && Object.keys(D.hdi).length) h += strip('HDI', 'Human Development Index (UNDP)', D.hdi);
+    return h + '</div>';
+  }).join('');
+
+  // ── Model vs reality ──
+  const last = id => D.fred[id] ? D.fred[id].obs[D.fred[id].obs.length - 1] : null;
+  const sim = EvoEcon.makeSim('status', {}); sim.step(); const h0 = sim.hist[0];
+  const arr = Array.from(sim.W, (x, k) => x + sim.L[k]).sort((a, b) => a - b), tot = arr.reduce((a, b) => a + b, 0);
+  const top1 = arr.slice(-Math.round(arr.length * 0.01)).reduce((a, b) => a + b, 0) / tot;
+  const b50 = last('WFRBSB50215'), t1 = last('WFRBST01134'), lab = last('LABSHPUSA156NRUG'), ur = last('UNRATE'), ig = last('INT_GDP'), el = last('CUSR0000SEHF01');
+  const gapCls = g => g <= 0.15 ? 'ok' : g <= 0.4 ? 'warn' : 'bad';
+  const C = [
+    ['Bottom 50% wealth share', b50 && b50[1] / 100, h0.bottom50, `Fed DFA, ${b50 && b50[0].slice(0, 7)}`, 'Initial spread is calibrated to the top 1%; a log-normal can’t hit both tails, so the bottom half starts a little richer than reality.'],
+    ['Top 1% wealth share', t1 && t1[1] / 100, top1, `Fed DFA, ${t1 && t1[0].slice(0, 7)}`, 'Calibration target: matched.'],
+    ['Labor share of income', lab && lab[1], h0.labor, `Penn World Table, ${lab && lab[0].slice(0, 4)}`, 'Close. The model starts at 62% before bottleneck rents.'],
+    ['Unemployment', ur && ur[1] / 100, h0.unemp, `BLS, ${ur && ur[0].slice(0, 7)}`, 'The model starts at full employment. Real economies never do. Read model unemployment as job loss above today’s baseline.'],
+    ['Federal interest / GDP', ig && ig[1] / 100, null, `BEA, ${ig && ig[0].slice(0, 7)}`, 'Not modeled yet. The fiscal squeeze is the next layer to add.'],
+    ['Electricity price inflation', el && el[1] / 100, null, `BLS CPI, ${el && el[0].slice(0, 7)}`, 'The model’s power price is an index, not a rate. The direction matches: AI demand is lifting it.'],
+  ];
+  $('calib').innerHTML = C.map(([n, real, model, src, note]) => {
+    if (real == null) return '';
+    const g = model == null ? null : Math.abs(model - real) / Math.max(1e-9, Math.abs(real));
+    const pct = v => (v * 100).toFixed(1) + '%';
+    return `<tr><td>${n}</td><td>${pct(real)} <div class="muted" style="font-size:11px">${src}</div></td><td>${model == null ? '<span class="muted">not modeled</span>' : pct(model)}</td>
+      <td>${g == null ? '—' : model === 0 && real > 0 ? '<span class="bad">by design</span>' : `<span class="${gapCls(g)}">${(g * 100).toFixed(0)}%</span>`}</td><td class="muted" style="font-size:13px">${note}</td></tr>`;
+  }).join('');
+
+  // ── Political GEX ──
+  const PG = [
+    ['Position on refugees', [['Admit a great many new refugees', .366], ['Admit some new refugees', .533], ['Deport some refugees', .571], ['Deport a great many refugees', .528]], .012],
+    ['Position on the EU', [['Develop the EU into a common state', .547], ['Stronger cooperation within the EU', .572], ['Weaker cooperation within the EU', .504], ['Germany’s withdrawal from the EU', .377]], .012],
+    ['Position on taxes', [['Much higher taxes on the rich', .572, 1], ['Somewhat higher taxes on the rich', .590, 1], ['Somewhat lower taxes on the rich', .452], ['Much lower taxes on the rich', .386]], .012],
+    ['Position on globalization', [['Much more free trade', .513], ['Somewhat more free trade', .511], ['Somewhat less free trade', .503], ['Much less free trade', .471]], .014],
+    ['Populist priorities', [['Fight political corruption', .514], ['Overthrow the political elite', .401], ['Strengthen direct democracy', .529], ['Defend citizens’ interests', .531, 1], ['Lead Germany out of the crisis', .502]], .018],
+    ['Other priorities', [['Improve environmental protection', .474], ['Promote economic growth', .500], ['Strengthen social justice', .516, 1], ['Stop Islamization', .497], ['Fight crime', .519], ['Strengthen civil rights', .509], ['Make globalization fairer', .489], ['Create a social Europe', .513]], .018],
+  ];
+  const lo = .33, hi = .67, P = v => (v - lo) / (hi - lo) * 100;
+  $('pgex').innerHTML = PG.map(([cat, items, ci]) => `<div class="cat">${cat}</div>` + items.map(([l, v, star]) => {
+    const col = v - ci > .5 ? css('--fav') : v + ci < .5 ? css('--unf') : css('--neu');
+    const a = Math.min(P(v), P(.5)), b = Math.abs(P(v) - P(.5));
+    return `<div class="lab">${star ? '<span class="star">★</span> ' : ''}${l}</div>
+      <div class="barbox"><div class="mid" style="left:${P(.5)}%"></div><div class="bar" style="left:${a}%;width:${b}%;background:${col};opacity:.35"></div>
+        <div class="ci" style="left:${P(v - ci)}%;width:${P(v + ci) - P(v - ci)}%"></div><div class="pt" style="left:${P(v)}%;background:${col}"></div></div>
+      <div class="num">${(v * 100).toFixed(0)}%</div>`;
+  }).join('')).join('');
+  $('pticks').innerHTML = [.35, .4, .45, .5, .55, .6, .65].map(v => `<span style="left:${P(v)}%">${Math.round(v * 100)}%</span>`).join('');
+
+  // live: message effect across seeds
+  setTimeout(() => {
+    const gov = msg => { let R = 0, T = 0; for (let seed = 1; seed <= 30; seed++) { const s = EvoEcon.makeSim('democracy', { seed, payout: 0.5, message: msg }); for (let i = 0; i < 60; i++) s.step(); R += s.hist.filter(x => x.party === 'republic').length; T += 60; } return R / T; };
+    $('gov-defend').textContent = (gov('defend') * 100).toFixed(0) + '%'; $('gov-over').textContent = (gov('overthrow') * 100).toFixed(0) + '%';
+  }, 50);
+})();
+</script>
+</body>
+</html>

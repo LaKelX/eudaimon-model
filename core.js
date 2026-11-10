@@ -44,11 +44,17 @@
     auto: 0.004,       // AI automation: labor share falls this much per year
     nb: 3,             // number of bottleneck owners (energy / chips / magnets)
     sub: 0.014,        // asset-building subsidy, share of GDP (~$397B / ~$28T)
-    wealthSigma: 2.2,  // initial wealth inequality (lognormal sigma)
+    wealthSigma: 2.05, // initial wealth inequality (lognormal sigma), calibrated to the Fed DFA top-1% share (~32%)
     payout: 0,         // share of citizen-stake income paid out as cash dividend (Alaska PFD style)
     build: 0.05,       // grid build limit: new capacity per year beyond replacement, share of capacity
     shocks: 1,         // landscape shock frequency multiplier (fuel spikes, climate disasters, AI power surges)
+    message: 'defend', // Ownership Party's message: 'defend' citizens' interests, or 'overthrow' the elite
   };
+  // Platform appeal, scaled from a German conjoint experiment (candidate-choice probabilities):
+  // higher taxes on the rich ~0.58 (+0.08 vs 0.50); "defend citizens' interests" 0.53 (+0.03);
+  // "overthrow the political elite" 0.40 (-0.10). Candidate-choice effects are discounted ~60%
+  // into vote share, since real elections bundle many issues.
+  const APPEAL = { tax: 0.4 * 0.08, defend: 0.4 * 0.03, overthrow: 0.4 * -0.10 };
 
   // Party platforms (the "Ideology" bubble in Frey's diagram)
   function platform(party, o, safe) {
@@ -249,6 +255,8 @@
         const constituency = 0.35 * stakeShare * (st.party === 'republic' ? 1 : -1);
         pop = 0.5 + 1.0 * (gY - st.norm.g) - 1.5 * (unemp - st.norm.u) - 0.8 * (infl - 0.02) + 0.6 * (gMed - st.norm.m)
           - 0.006 * st.inOffice + lobby + constituency + 0.02 * RP.gauss();
+        const appeal = APPEAL.tax + (o.message === 'overthrow' ? APPEAL.overthrow : APPEAL.defend);
+        pop += st.party === 'republic' ? appeal : -appeal;   // the opposition's platform pulls the other way
         st.popS = t === 0 ? pop : 0.6 * st.popS + 0.4 * pop;
         st.inOffice++;
         if (t % 4 === 3) {

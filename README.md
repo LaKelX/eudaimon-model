@@ -8,6 +8,7 @@ Two connected simulations, both plain HTML and JavaScript with no build step.
 - **[The Market Mind](https://lakelx.github.io/eudaimon-model/market.html)**: 200 evolving traders with habits and shadow habits, plus a Mind that sees only the tape. It tests eight theories of markets (Fama, momentum, De Bondt–Thaler, Graham, Soros, Minsky, Kahneman–Shiller, pattern memory), finds its own market archetypes with no labels, recalls them when they return, estimates the crowd's hidden biases from order flow, and publishes its forecast back into the market it is modeling.
 
 - **[The Lineage](https://lakelx.github.io/eudaimon-model/lineage.html)**: Radzicki's 2003 genealogy of economic thought as an interactive graph. Trace anyone's ancestors and descendants, see what the map misses (Kahneman, Ostrom, Soros, Ibn Khaldun, Piketty…) and where the Eudaimon model descends from.
+- **[Reality Board](https://lakelx.github.io/eudaimon-model/reality.html)**: the real US and Texas economy as a GEX-style pressure board (each indicator vs. its own 25-year history), peer countries across economic, demographic and social indicators, model-vs-reality calibration, and a "political GEX" of what voters reward. Data from FRED, World Bank and UNDP, refreshed weekly by GitHub Actions.
 
 Value in the Market Mind is driven by productivity from the Evolutionary Economy: one system, two lenses.
 
