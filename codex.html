@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Eudaimon Codex</title>
+<meta name="description" content="The Eudaimon Codex: economics, politics, trading and markets in four volumes, with the thinkers, the equations, and how each idea is used. Built by Eudaimon Capitol.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0b0b0c; --panel:#141416; --panel2:#1a1a19; --line:#26262a; --text:#ecebe7; --muted:#9a978f; --faint:#6d6a64;
+    --gold:#c9a75e; --e:#c98500; --p:#3987e5; --t:#d95926; --m:#199e70;
+    --serif:"Fraunces", Georgia, "Times New Roman", serif;
+    --sans:Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.55 var(--sans); }
+  a { color:inherit; }
+  .wrap { max-width:1240px; margin:0 auto; padding:24px 16px 72px; }
+  nav.top { display:flex; gap:16px; flex-wrap:wrap; font-size:13px; margin-bottom:18px; }
+  nav.top a { color:var(--muted); text-decoration:none; } nav.top a.on { color:var(--gold); }
+  .eyebrow { color:var(--gold); letter-spacing:.16em; font-size:11px; text-transform:uppercase; font-weight:600; }
+
+  /* ---------- collage hero ---------- */
+  .collage { display:grid; gap:10px; grid-template-columns:repeat(12,1fr); grid-auto-rows:minmax(150px,auto);
+    grid-template-areas:
+      "title title title title title title title e e e e e"
+      "title title title title title title title p p p q q"
+      "t t t t live live live live m m m m"; }
+  .collage > * { min-width:0; }
+  .tile { position:relative; overflow:hidden; border:1px solid var(--line); border-radius:14px; background:var(--panel); padding:18px; }
+  .tile svg.art { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+  .tile > .in { position:relative; z-index:1; height:100%; display:flex; flex-direction:column; }
+  .t-title { grid-area:title; padding:28px; background:radial-gradient(120% 90% at 0% 0%, #221d12 0%, var(--panel) 60%); }
+  .t-title h1 { font-family:var(--serif); font-weight:800; font-size:clamp(34px,5.6vw,68px); line-height:.98; letter-spacing:-.02em; margin:14px 0 14px; }
+  .t-title h1 em { font-style:italic; font-weight:400; color:var(--gold); }
+  .t-title p { color:var(--muted); max-width:560px; margin:0 0 18px; font-size:15.5px; }
+  .counts { margin-top:auto; display:flex; gap:22px; flex-wrap:wrap; }
+  .counts div { font-size:12px; color:var(--muted); } .counts b { display:block; font-family:var(--serif); font-size:30px; color:var(--text); font-weight:600; line-height:1.1; }
+  .vol { cursor:pointer; text-decoration:none; transition:border-color .2s, transform .2s; }
+  .vol:hover, .vol:focus-visible { border-color:var(--vc); transform:translateY(-2px); outline:none; }
+  .vol .rn { font-family:var(--serif); font-size:46px; font-weight:800; line-height:1; color:var(--vc); }
+  .vol h2 { font-family:var(--serif); font-weight:600; font-size:26px; margin:4px 0 6px; }
+  .vol p { margin:0; color:var(--muted); font-size:13.5px; max-width:430px; }
+  .vol .go { margin-top:auto; padding-top:10px; font-size:12px; color:var(--text); }
+  .vol .go span { color:var(--muted); }
+  .t-e { grid-area:e; --vc:var(--e); } .t-p { grid-area:p; --vc:var(--p); } .t-t { grid-area:t; --vc:var(--t); } .t-m { grid-area:m; --vc:var(--m); }
+  .t-q { grid-area:q; background:var(--gold); color:#14110a; border-color:var(--gold); }
+  .t-q blockquote { margin:0; font-family:var(--serif); font-size:clamp(19px,1.8vw,24px); line-height:1.15; font-weight:600; }
+  .t-q cite { margin-top:auto; font-style:normal; font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; }
+  .t-live { grid-area:live; }
+  .live-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px 16px; margin-top:12px; }
+  .stat .v { font-family:var(--serif); font-size:28px; font-weight:600; line-height:1.1; font-variant-numeric:tabular-nums; }
+  .stat .l { font-size:12px; color:var(--muted); }
+  .stat .d { font-size:11px; color:var(--faint); }
+  .live-foot { margin-top:auto; padding-top:10px; font-size:11px; color:var(--faint); }
+  .live-foot a { color:var(--gold); }
+  @media (max-width:900px) {
+    .collage { grid-template-columns:repeat(2,1fr); grid-template-areas: "title title" "e e" "p q" "t t" "m m" "live live"; }
+  }
+  @media (max-width:560px) {
+    .collage { grid-template-columns:1fr; grid-template-areas: "title" "e" "p" "q" "t" "m" "live"; }
+    .t-title { padding:22px; }
+  }
+
+  /* ---------- sections ---------- */
+  section { margin-top:56px; }
+  .sh { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:16px; }
+  .sh h2 { font-family:var(--serif); font-weight:600; font-size:clamp(24px,3vw,34px); margin:0; letter-spacing:-.01em; }
+  .sh p { margin:0; color:var(--muted); font-size:14px; flex:1 1 320px; }
+
+  /* timeline */
+  .tl-box { position:relative; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:10px 6px 6px; }
+  .tl-scroll { overflow-x:auto; }
+  #tl { display:block; min-width:900px; width:100%; height:auto; }
+  #tl .dot { cursor:pointer; }
+  #tl .dot circle.hit { fill:transparent; }
+  #tl .dot:hover circle.mk, #tl .dot:focus circle.mk { r:8; }
+  #tl text { font-family:var(--sans); }
+  .legend { display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--muted); padding:6px 10px 4px; }
+  .sq { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:-1px; }
+  .tip { position:absolute; pointer-events:none; background:#0e0e10; border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:12px; line-height:1.45; display:none; z-index:20; max-width:240px; box-shadow:0 8px 24px rgba(0,0,0,.55); }
+  .tip b { font-weight:600; } .tip .h { color:var(--muted); }
+
+  /* formula wall */
+  .wall { columns:4 250px; column-gap:10px; }
+  .fx { break-inside:avoid; margin:0 0 10px; background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--vc); border-radius:10px; padding:14px 14px 12px; cursor:pointer; transition:background .15s, border-color .15s; }
+  .fx:hover, .fx:focus-visible { background:var(--panel2); border-color:var(--vc); outline:none; }
+  .fx .c { font-size:11px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; display:flex; justify-content:space-between; gap:8px; }
+  .fx .eq { font-family:var(--serif); font-size:19px; line-height:1.35; margin:10px 0 8px; overflow-wrap:anywhere; }
+  .fx:nth-child(5n+1) .eq { font-size:23px; } .fx:nth-child(7n+3) .eq { font-style:italic; }
+  .fx .mn { font-size:12.5px; color:var(--muted); margin:0; }
+
+  /* library */
+  .filters { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:18px; position:sticky; top:0; z-index:10; background:var(--bg); padding:10px 0; }
+  .chip { background:transparent; color:var(--text); border:1px solid var(--line); border-radius:999px; padding:7px 14px; font:600 13px var(--sans); cursor:pointer; }
+  .chip .sq { margin-right:7px; }
+  .chip[aria-pressed=true] { background:var(--text); color:#111; border-color:var(--text); }
+  .search { margin-left:auto; flex:0 1 260px; background:var(--panel); border:1px solid var(--line); border-radius:999px; color:var(--text); padding:8px 14px; font:14px var(--sans); min-width:0; }
+  @media (max-width:560px){ .search { margin-left:0; flex:1 1 100%; } }
+  .volhead { display:grid; grid-template-columns:auto 1fr; gap:4px 18px; align-items:end; margin:34px 0 14px; }
+  .volhead .rn { font-family:var(--serif); font-size:64px; font-weight:800; line-height:.85; color:var(--vc); grid-row:span 2; }
+  .volhead h3 { font-family:var(--serif); font-size:28px; margin:0; font-weight:600; }
+  .volhead p { margin:0; color:var(--muted); max-width:760px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr)); gap:10px; }
+  .card { text-align:left; font:inherit; color:inherit; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; cursor:pointer; display:flex; flex-direction:column; gap:8px; transition:border-color .15s, transform .15s; }
+  .card:hover, .card:focus-visible { border-color:var(--vc); transform:translateY(-2px); outline:none; }
+  .card .no { font-size:11px; color:var(--muted); letter-spacing:.1em; display:flex; align-items:center; gap:8px; }
+  .card .no::before { content:""; width:18px; height:3px; border-radius:2px; background:var(--vc); }
+  .card h4 { font-family:var(--serif); font-size:21px; font-weight:600; margin:0; line-height:1.15; }
+  .card .k { color:var(--muted); font-size:13.5px; margin:0; }
+  .card .who { margin-top:auto; font-size:12px; color:var(--faint); }
+  .empty { color:var(--muted); padding:20px 0; }
+
+  /* connects */
+  .links { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr)); gap:10px; }
+  .lk { display:block; text-decoration:none; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; transition:border-color .15s; }
+  .lk:hover { border-color:var(--gold); }
+  .lk b { font-family:var(--serif); font-size:20px; font-weight:600; display:block; margin-bottom:4px; }
+  .lk span { color:var(--muted); font-size:13px; } .lk i { display:block; margin-top:10px; font-style:normal; font-size:12px; color:var(--gold); }
+
+  /* reader */
+  dialog { width:min(760px, calc(100% - 24px)); max-height:calc(100% - 24px); border:1px solid var(--line); border-top:4px solid var(--vc); border-radius:14px; background:var(--panel); color:var(--text); padding:0; }
+  dialog::backdrop { background:rgba(0,0,0,.72); backdrop-filter:blur(3px); }
+  .rd { padding:26px 26px 22px; }
+  .rd .top { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+  .rd .vn { font-size:11px; color:var(--muted); letter-spacing:.14em; text-transform:uppercase; }
+  .rd h3 { font-family:var(--serif); font-size:clamp(26px,4vw,36px); margin:6px 0 6px; line-height:1.05; font-weight:600; }
+  .rd .k { color:var(--muted); margin:0 0 14px; font-size:15px; }
+  .x { background:transparent; border:1px solid var(--line); color:var(--text); border-radius:8px; width:34px; height:34px; cursor:pointer; font-size:18px; flex:none; }
+  .who-chips { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+  .who-chips span { font-size:12px; border:1px solid var(--line); border-radius:999px; padding:3px 10px; color:var(--muted); }
+  .rd ol { margin:0 0 18px; padding-left:20px; } .rd li { margin:8px 0; }
+  .eqbox { background:var(--bg); border:1px solid var(--line); border-left:3px solid var(--vc); border-radius:8px; padding:14px 16px; margin-bottom:16px; }
+  .eqbox .eq { font-family:var(--serif); font-size:21px; line-height:1.4; overflow-wrap:anywhere; }
+  .eqbox p { margin:6px 0 0; font-size:13px; color:var(--muted); }
+  .use { background:#1d1a12; border:1px solid #3a3220; border-radius:8px; padding:14px 16px; }
+  .use .h { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); font-weight:700; margin-bottom:4px; }
+  .rd .nav { display:flex; justify-content:space-between; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .btn { background:transparent; border:1px solid var(--line); color:var(--text); border-radius:8px; padding:8px 14px; font:600 13px var(--sans); cursor:pointer; text-decoration:none; }
+  .btn.gold { background:var(--gold); color:#111; border-color:var(--gold); }
+
+  footer { margin-top:56px; color:var(--muted); font-size:12px; border-top:1px solid var(--line); padding-top:14px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  @media (prefers-reduced-motion:reduce){ * { transition:none !important; scroll-behavior:auto !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="top">
+    <a href="index.html">The Evolutionary Economy</a><a href="market.html">The Market Mind</a><a href="lineage.html">The Lineage</a><a href="reality.html">Reality Board</a><a href="codex.html" class="on">The Codex</a>
+  </nav>
+
+  <!-- ===== COLLAGE ===== -->
+  <div class="collage" id="collage">
+    <div class="tile t-title"><div class="in">
+      <div class="eyebrow">Eudaimon Capitol · The Codex · <span id="ver"></span></div>
+      <h1>Four disciplines.<br><em>One machine</em> for seeing where value pools.</h1>
+      <p>Economics says what is scarce. Politics says who writes the rules around it. Markets show what the crowd believes. Trading is how you get paid for being right before they are. This is the operating manual: the thinkers, the equations, and how each idea gets used.</p>
+      <div class="counts" id="counts"></div>
+    </div></div>
+    <div class="tile t-q"><div class="in">
+      <blockquote>“The money is made owning bottlenecks, not end products.”</blockquote>
+      <cite>The master frame</cite>
+    </div></div>
+    <div class="tile t-live"><div class="in">
+      <div class="eyebrow">Live from the Reality Board</div>
+      <div class="live-grid" id="live"><div class="stat"><div class="l">Loading real data…</div></div></div>
+      <div class="live-foot" id="livefoot">FRED · refreshed weekly · <a href="reality.html">open the board →</a></div>
+    </div></div>
+  </div>
+
+  <!-- ===== TIMELINE ===== -->
+  <section id="lineage">
+    <div class="sh"><h2>Five centuries of ideas</h2><p>Every dot is a thinker, placed by the year of their key work. Hover to read, click to open the chapter. Each lane is a volume.</p></div>
+    <div class="tl-box" id="tlbox">
+      <div class="legend" id="tllegend"></div>
+      <div class="tl-scroll"><svg id="tl" viewBox="0 0 1200 330" role="img" aria-label="Timeline of thinkers from 1532 to 2019 across economics, politics, trading and markets"></svg></div>
+      <div class="tip" id="tip"></div>
+    </div>
+  </section>
+
+  <!-- ===== FORMULA WALL ===== -->
+  <section id="wall">
+    <div class="sh"><h2>The wall of equations</h2><p>One formula per chapter, written so it can be used. Click any one to read the chapter behind it.</p></div>
+    <div class="wall" id="fxwall"></div>
+  </section>
+
+  <!-- ===== LIBRARY ===== -->
+  <section id="library">
+    <div class="sh"><h2>The library</h2><p>Four volumes, eight chapters each. Every chapter ends with how Angelo uses it.</p></div>
+    <div class="filters" id="filters" role="toolbar" aria-label="Filter chapters"></div>
+    <div id="vols"></div>
+  </section>
+
+  <!-- ===== CONNECTS ===== -->
+  <section id="connect">
+    <div class="sh"><h2>Where the Codex runs</h2><p>The ideas aren't only written here. They run as code in four live models on this site.</p></div>
+    <div class="links">
+      <a class="lk" href="index.html"><b>The Evolutionary Economy</b><span>Schumpeter, Nelson &amp; Winter, Wright's law, Geels, Frey–Schneider, Piketty. Three economies, same luck, different owners.</span><i>Chapters e6 · e7 · p3 · p5 →</i></a>
+      <a class="lk" href="market.html"><b>The Market Mind</b><span>200 evolving traders with habits and shadow habits. A Mind that weighs eight theories against each other by regime.</span><i>Chapters e4 · t6 · t8 · m1 · m2 · m4 →</i></a>
+      <a class="lk" href="lineage.html"><b>The Lineage</b><span>The family tree of evolutionary economics, from Veblen to Eudaimon, with the missing ancestors added.</span><i>Chapters e1 · e7 →</i></a>
+      <a class="lk" href="reality.html"><b>The Reality Board</b><span>Real US and Texas data as a GEX-style pressure board, plus the political GEX and peer-country triad.</span><i>Chapters e5 · p7 · t5 · m5 →</i></a>
+    </div>
+  </section>
+
+  <footer>
+    <span>The Eudaimon Codex · Eudaimon Capitol · educational, not investment advice.</span>
+    <span>Content lives in <code>codex-data.js</code> · new chapters render automatically.</span>
+  </footer>
+</div>
+
+<dialog id="reader" aria-labelledby="rdTitle"><div class="rd" id="rd"></div></dialog>
+
+<script src="codex-data.js"></script>
+<script>
+(function(){
+  const C = window.CODEX, V = C.volumes;
+  const byId = {}, order = [];
+  V.forEach(v => v.chapters.forEach((ch, i) => { ch.vol = v; ch.n = i + 1; byId[ch.id] = ch; order.push(ch.id); }));
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const strip = h => { const d = document.createElement("div"); d.innerHTML = h; return d.textContent; };
+  const NS = "http://www.w3.org/2000/svg";
+  function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+  $("#ver").textContent = C.version;
+  const nCh = order.length, nTh = C.thinkers.length;
+  $("#counts").innerHTML = [[V.length,"volumes"],[nCh,"chapters"],[nTh,"thinkers"],[nCh,"equations"],[4,"live models"]]
+    .map(([n,l]) => `<div><b>${n}</b>${l}</div>`).join("");
+
+  /* ---------- volume tiles with generative art ---------- */
+  const collage = $("#collage");
+  V.forEach(v => {
+    const a = document.createElement("a");
+    a.className = `tile vol t-${v.id}`; a.href = `#vol-${v.id}`;
+    a.setAttribute("aria-label", `Volume ${v.roman}: ${v.name}`);
+    a.innerHTML = `<svg class="art" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${art(v.id, v.color)}</svg>
+      <div class="in"><div class="rn">${v.roman}</div><h2>${v.name}</h2><p>${esc(v.thesis)}</p>
+      <div class="go">${v.chapters.length} chapters <span>· open the volume →</span></div></div>`;
+    a.addEventListener("click", e => { e.preventDefault(); setFilter(v.id); document.getElementById(`vol-${v.id}`).scrollIntoView({behavior:"smooth"}); });
+    collage.appendChild(a);
+  });
+
+  function art(id, c){
+    const r = rng(id.charCodeAt(0) * 97), o = [];
+    const fade = `<defs><linearGradient id="fd${id}" x1="0" x2="1"><stop offset="0" stop-color="#141416" stop-opacity=".97"/><stop offset=".45" stop-color="#141416" stop-opacity=".55"/><stop offset="1" stop-color="#141416" stop-opacity="0"/></linearGradient></defs>`;
+    if (id === "e") { // successive S-curves: waves of creative destruction
+      for (let k = 0; k < 6; k++) {
+        const x0 = 60 + k * 62, pts = [];
+        for (let x = 0; x <= 400; x += 8) pts.push(`${x},${190 - 150 / (1 + Math.exp(-(x - x0) / 18)) * (0.55 + k * 0.08)}`);
+        o.push(`<polyline points="${pts.join(" ")}" fill="none" stroke="${c}" stroke-width="2" opacity="${0.25 + k * 0.12}"/>`);
+      }
+    } else if (id === "p") { // network of actors and coalitions
+      const N = [];
+      for (let k = 0; k < 22; k++) N.push([140 + r() * 255, 15 + r() * 170, r() < 0.18 ? 7 : 3 + r() * 2]);
+      N.forEach((a, i) => N.forEach((b, j) => { if (j > i && Math.hypot(a[0]-b[0], a[1]-b[1]) < 70) o.push(`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${c}" stroke-width="1" opacity=".35"/>`); }));
+      N.forEach(a => o.push(`<circle cx="${a[0]}" cy="${a[1]}" r="${a[2]}" fill="${c}" opacity="${a[2] > 6 ? .95 : .6}"/>`));
+    } else if (id === "t") { // option payoff + gamma bell
+      for (let x = 0; x <= 400; x += 40) o.push(`<line x1="${x}" y1="0" x2="${x}" y2="200" stroke="#2a2a2e" stroke-width="1"/>`);
+      [[230, 1], [260, .55], [290, .3]].forEach(([k, op]) => o.push(`<polyline points="120,165 ${k},165 400,${165 - (400 - k) * 0.95}" fill="none" stroke="${c}" stroke-width="2.5" opacity="${op}"/>`));
+      const g = []; for (let x = 120; x <= 400; x += 5) g.push(`${x},${190 - 70 * Math.exp(-((x - 260) ** 2) / 1800)}`);
+      o.push(`<polyline points="${g.join(" ")}" fill="none" stroke="${c}" stroke-width="1.5" stroke-dasharray="4 4" opacity=".7"/>`);
+    } else { // candlesticks from a seeded walk
+      let p = 120;
+      for (let k = 0; k < 26; k++) {
+        const x = 130 + k * 10.5, op = p, cl = p + (r() - 0.47) * 22, hi = Math.max(op, cl) + r() * 8, lo = Math.min(op, cl) - r() * 8; p = cl;
+        const up = cl < op; // svg y down: lower y = higher price
+        o.push(`<line x1="${x}" y1="${hi + 0}" x2="${x}" y2="${lo}" stroke="${c}" opacity=".55" transform="translate(0,${-0})"/>`);
+        o.push(`<rect x="${x - 3.5}" y="${Math.min(op, cl)}" width="7" height="${Math.max(2, Math.abs(cl - op))}" rx="1.5" fill="${up ? c : "none"}" stroke="${c}" opacity="${up ? .9 : .6}"/>`);
+      }
+    }
+    return fade + o.join("") + `<rect width="400" height="200" fill="url(#fd${id})"/>`;
+  }
+
+  /* ---------- live tile ---------- */
+  fetch("data/reality.json").then(r => r.json()).then(d => {
+    const F = d.fred || {}, last = id => { const s = F[id] && F[id].obs; return s && s.length ? s[s.length - 1] : null; };
+    const rows = [["INT_GDP","Federal interest / GDP","%"],["DGS10","10-year Treasury","%"],["CPIAUCSL","Inflation (CPI, y/y)","%"],["WFRBST01134","Top 1% wealth share","%"]];
+    $("#live").innerHTML = rows.map(([id, l, u]) => { const o = last(id); if (!o) return ""; return `<div class="stat"><div class="v">${(+o[1]).toFixed(o[1] >= 10 ? 1 : 2)}${u}</div><div class="l">${l}</div><div class="d">${o[0].slice(0,7)}</div></div>`; }).join("") || `<div class="stat"><div class="l">Data unavailable.</div></div>`;
+    $("#livefoot").innerHTML = `FRED · fetched ${esc(d.fetched || "")} · refreshed weekly · <a href="reality.html">open the board →</a>`;
+  }).catch(() => { $("#live").innerHTML = `<div class="stat"><div class="l">Live data loads on the published site.</div></div>`; });
+
+  /* ---------- timeline ---------- */
+  (function(){
+    const svg = $("#tl"), W = 1200, L = 110, R = 1180, lanes = ["e","p","t","m"], laneH = 68, top = 34;
+    const X = y => y < 1900 ? L + (y - 1500) / 400 * (R - L) * 0.28 : L + (R - L) * 0.28 + (y - 1900) / 125 * (R - L) * 0.72;
+    const vmap = Object.fromEntries(V.map(v => [v.id, v]));
+    $("#tllegend").innerHTML = V.map(v => `<span><span class="sq" style="background:${v.color}"></span>${v.name}</span>`).join("") + `<span style="margin-left:auto;color:var(--faint)">Scale compresses before 1900</span>`;
+    const parts = [];
+    [[1500,1776,"Statecraft"],[1776,1870,"Classical"],[1870,1936,"Marginal & monetary"],[1936,1970,"Keynes & games"],[1970,2000,"Modern finance"],[2000,2025,"Complexity"]].forEach(([a,b,n],i) => {
+      parts.push(`<rect x="${X(a)}" y="${top - 8}" width="${X(b) - X(a)}" height="${laneH * 4 + 8}" fill="${i % 2 ? "#18181a" : "#141416"}"/>`);
+      parts.push(`<text x="${(X(a) + X(b)) / 2}" y="${top - 14}" fill="#6d6a64" font-size="11" text-anchor="middle">${n}</text>`);
+    });
+    lanes.forEach((id, i) => {
+      const y = top + i * laneH + laneH / 2;
+      parts.push(`<line x1="${L}" y1="${y}" x2="${R}" y2="${y}" stroke="#26262a"/>`);
+      parts.push(`<text x="${L - 12}" y="${y + 4}" fill="#ecebe7" font-size="13" font-weight="600" text-anchor="end">${vmap[id].name}</text>`);
+    });
+    [1500,1600,1700,1800,1900,1925,1950,1975,2000,2025].forEach(y => parts.push(`<text x="${X(y)}" y="${top + laneH * 4 + 18}" fill="#6d6a64" font-size="11" text-anchor="middle">${y}</text>`));
+    svg.innerHTML = parts.join("");
+    const tiers = {}; lanes.forEach(id => tiers[id] = [-1e9, -1e9]);
+    C.thinkers.forEach(([name, yr, vid, idea, ch], k) => {
+      const li = lanes.indexOf(vid), x = X(yr), y = top + li * laneH + laneH / 2, col = vmap[vid].color;
+      const g = document.createElementNS(NS, "g"); g.setAttribute("class", "dot"); g.setAttribute("tabindex", "0");
+      g.setAttribute("aria-label", `${name}, ${yr}: ${idea}`);
+      const w = name.length * 6.1 + 6; let lab = "";
+      for (let t = 0; t < 2; t++) if (x - w / 2 > tiers[vid][t] + 4) { tiers[vid][t] = x + w / 2; lab = `<text x="${x}" y="${t ? y + 22 : y - 12}" fill="#9a978f" font-size="10.5" text-anchor="middle">${esc(name)}</text>`; break; }
+      g.innerHTML = `${lab}<circle class="mk" cx="${x}" cy="${y}" r="6" fill="${col}" stroke="#141416" stroke-width="2"/><circle class="hit" cx="${x}" cy="${y}" r="13"/>`;
+      const show = () => { const b = $("#tlbox").getBoundingClientRect(), cr = g.querySelector(".mk").getBoundingClientRect(), tip = $("#tip");
+        tip.innerHTML = `<b>${esc(name)}</b> <span class="h">· ${yr}</span><br>${esc(idea)}<br><span class="h">${vmap[vid].name} · chapter ${esc(byId[ch] ? byId[ch].t : "")}</span>`;
+        tip.style.display = "block"; let lx = cr.left - b.left + 12; if (lx + 240 > b.width) lx = cr.left - b.left - 250; tip.style.left = Math.max(4, lx) + "px"; tip.style.top = (cr.top - b.top - 8) + "px"; };
+      const hide = () => $("#tip").style.display = "none";
+      g.addEventListener("mouseenter", show); g.addEventListener("focus", show); g.addEventListener("mouseleave", hide); g.addEventListener("blur", hide);
+      g.addEventListener("click", () => open(ch)); g.addEventListener("keydown", e => { if (e.key === "Enter") open(ch); });
+      svg.appendChild(g);
+    });
+  })();
+
+  /* ---------- formula wall (interleaved across volumes for the collage) ---------- */
+  const wall = $("#fxwall"), inter = [];
+  for (let i = 0; i < 8; i++) V.forEach(v => v.chapters[i] && inter.push(v.chapters[i]));
+  wall.innerHTML = inter.map(ch => `<div class="fx" tabindex="0" role="button" data-id="${ch.id}" style="--vc:${ch.vol.color}">
+      <div class="c"><span>${esc(ch.t)}</span><span>${ch.vol.roman}.${ch.n}</span></div>
+      <div class="eq">${ch.f}</div><p class="mn">${esc(ch.fm)}</p></div>`).join("");
+  wall.addEventListener("click", e => { const f = e.target.closest(".fx"); if (f) open(f.dataset.id); });
+  wall.addEventListener("keydown", e => { const f = e.target.closest(".fx"); if (f && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); open(f.dataset.id); } });
+
+  /* ---------- library ---------- */
+  let filt = "all", q = "";
+  const fl = $("#filters");
+  fl.innerHTML = `<button class="chip" data-f="all" aria-pressed="true">All volumes</button>` +
+    V.map(v => `<button class="chip" data-f="${v.id}" aria-pressed="false"><span class="sq" style="background:${v.color}"></span>${v.name}</button>`).join("") +
+    `<input class="search" id="q" type="search" placeholder="Search ideas, thinkers, formulas…" aria-label="Search the codex">`;
+  fl.addEventListener("click", e => { const b = e.target.closest(".chip"); if (b) setFilter(b.dataset.f); });
+  $("#q").addEventListener("input", e => { q = e.target.value.trim().toLowerCase(); renderLib(); });
+  function setFilter(f){ filt = f; fl.querySelectorAll(".chip").forEach(b => b.setAttribute("aria-pressed", b.dataset.f === f)); renderLib(); }
+  const hay = ch => (ch.t + " " + ch.k + " " + ch.who.join(" ") + " " + ch.core.join(" ") + " " + strip(ch.f) + " " + ch.use).toLowerCase();
+  function renderLib(){
+    let html = "", hits = 0;
+    V.forEach(v => {
+      if (filt !== "all" && filt !== v.id) return;
+      const chs = v.chapters.filter(ch => !q || hay(ch).includes(q)); hits += chs.length;
+      if (!chs.length) return;
+      html += `<div class="volhead" id="vol-${v.id}" style="--vc:${v.color}"><div class="rn">${v.roman}</div><h3>${v.name}</h3><p>${esc(v.thesis)}</p></div>
+        <div class="cards">${chs.map(ch => `<button class="card" data-id="${ch.id}" style="--vc:${v.color}">
+          <div class="no">${v.roman}.${ch.n} · ${v.name.toUpperCase()}</div><h4>${esc(ch.t)}</h4><p class="k">${esc(ch.k)}</p>
+          <div class="who">${esc(ch.who.slice(0,3).join(" · "))}${ch.who.length > 3 ? " +" + (ch.who.length - 3) : ""}</div></button>`).join("")}</div>`;
+    });
+    // keep anchors alive for hidden volumes so tile links still land
+    V.forEach(v => { if (!html.includes(`id="vol-${v.id}"`)) html += `<div id="vol-${v.id}"></div>`; });
+    $("#vols").innerHTML = hits ? html : `<p class="empty">Nothing matches “${esc(q)}”.</p>` + html;
+  }
+  $("#vols").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) open(c.dataset.id); });
+  renderLib();
+
+  /* ---------- reader ---------- */
+  const dlg = $("#reader");
+  function open(id){
+    const ch = byId[id]; if (!ch) return;
+    const i = order.indexOf(id), prev = byId[order[(i - 1 + order.length) % order.length]], next = byId[order[(i + 1) % order.length]];
+    dlg.style.setProperty("--vc", ch.vol.color);
+    $("#rd").innerHTML = `<div class="top"><div class="vn">Volume ${ch.vol.roman} · ${ch.vol.name} · Chapter ${ch.n}</div><button class="x" aria-label="Close" data-close>×</button></div>
+      <h3 id="rdTitle">${esc(ch.t)}</h3><p class="k">${esc(ch.k)}</p>
+      <div class="who-chips">${ch.who.map(w => `<span>${esc(w)}</span>`).join("")}</div>
+      <ol>${ch.core.map(c => `<li>${esc(c)}</li>`).join("")}</ol>
+      <div class="eqbox"><div class="eq">${ch.f}</div><p>${esc(ch.fm)}</p></div>
+      <div class="use"><div class="h">How Angelo uses this</div>${esc(ch.use)}</div>
+      <div class="nav"><button class="btn" data-go="${prev.id}">← ${esc(prev.t)}</button>
+        ${ch.link ? `<a class="btn gold" href="${ch.link[0]}">${esc(ch.link[1])} →</a>` : ""}
+        <button class="btn" data-go="${next.id}">${esc(next.t)} →</button></div>`;
+    if (!dlg.open) dlg.showModal();
+    dlg.scrollTop = 0;
+    history.replaceState(null, "", "#" + id);
+  }
+  dlg.addEventListener("click", e => {
+    if (e.target === dlg || e.target.closest("[data-close]")) dlg.close();
+    const g = e.target.closest("[data-go]"); if (g) open(g.dataset.go);
+  });
+  dlg.addEventListener("close", () => history.replaceState(null, "", location.pathname));
+  const h = location.hash.slice(1); if (byId[h]) open(h);
+})();
+</script>
+</body>
+</html>
