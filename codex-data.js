@@ -263,8 +263,8 @@ window.CODEX = {
           ],
           f: "GEX = Σ Γ<sub>i</sub> · OI<sub>i</sub> · 100 · S² · 1% · (±1)",
           fm: "Sum gamma × open interest × contract size × spot² for a 1% move. Calls count positive and puts negative (dealer convention).",
-          use: "The Reality Board uses GEX-style bars for the economy. For trades, check the gamma flip before chasing a breakout.",
-          link: ["reality.html", "See the GEX-style board"] },
+          use: "The Dealer Terminal computes this live for BTC and ETH from Deribit. For trades, check the gamma flip before chasing a breakout.",
+          link: ["terminal.html", "Open the live Dealer Terminal"] },
         { id: "t6", t: "Trend, Momentum & Reversion", k: "Winners keep winning for months, then give it back over years.",
           who: ["Narasimhan Jegadeesh & Sheridan Titman", "Tobias Moskowitz", "Richard Donchian"],
           core: [

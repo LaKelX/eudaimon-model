@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eudaimon Dealer Terminal</title>
+<meta name="description" content="Live BTC and ETH dealer gamma from Deribit's public options data: gamma flip, call and put walls, GEX by strike, gamma profile, volatility smile. Computed in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0b0b0c; --panel:#121214; --panel2:#18181b; --line:#26262a; --text:#ecebe7; --muted:#9a978f; --faint:#6d6a64; --gold:#c9a75e;
+    --pos:#3987e5; --neg:#d95926; --up:#199e70; --dn:#e66767; --peak:#9085e9; --mono:"JetBrains Mono", ui-monospace, Menlo, monospace; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:14px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  .wrap { max-width:1440px; margin:0 auto; padding:18px 16px 56px; }
+  nav.top { display:flex; gap:16px; flex-wrap:wrap; font-size:13px; margin-bottom:14px; }
+  nav.top a { color:var(--muted); text-decoration:none; } nav.top a.on { color:var(--gold); }
+  .bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; border:1px solid var(--line); background:var(--panel); border-radius:10px; padding:10px 12px; font-family:var(--mono); font-size:12.5px; }
+  .brand { font-weight:700; letter-spacing:.06em; color:var(--gold); margin-right:6px; }
+  .seg { display:inline-flex; border:1px solid var(--line); border-radius:7px; overflow:hidden; }
+  .seg button { background:transparent; color:var(--muted); border:0; padding:6px 11px; font:600 12px var(--mono); cursor:pointer; }
+  .seg button + button { border-left:1px solid var(--line); }
+  .seg button[aria-pressed=true] { background:var(--text); color:#111; }
+  .status { margin-left:auto; display:flex; gap:12px; align-items:center; color:var(--muted); }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--up); display:inline-block; margin-right:6px; box-shadow:0 0 8px var(--up); }
+  .dot.off { background:var(--dn); box-shadow:0 0 8px var(--dn); }
+  .ghost { background:transparent; border:1px solid var(--line); color:var(--text); border-radius:7px; padding:6px 10px; font:600 12px var(--mono); cursor:pointer; }
+
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin:10px 0; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 12px; position:relative; }
+  .tile .l { font-size:11px; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; display:flex; align-items:center; gap:6px; }
+  .tile .v { font:700 20px var(--mono); margin-top:2px; font-variant-numeric:tabular-nums; }
+  .tile .s { font:12px var(--mono); color:var(--muted); }
+  .key { width:14px; height:3px; border-radius:2px; display:inline-block; }
+  .key.dash { background:repeating-linear-gradient(90deg,currentColor 0 4px,transparent 4px 7px) !important; height:2px; }
+
+  .read { border:1px solid var(--line); border-left:3px solid var(--gold); background:var(--panel); border-radius:0 10px 10px 0; padding:12px 16px; margin-bottom:10px; }
+  .read .h { font:700 11px var(--mono); letter-spacing:.12em; color:var(--gold); margin-bottom:4px; }
+  .read p { margin:4px 0; }
+  .read b { font-family:var(--mono); }
+
+  .main { display:grid; grid-template-columns:minmax(0,1fr) 380px; gap:10px; }
+  .two { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr)); gap:10px; margin-top:10px; }
+  @media (max-width:980px) { .main { grid-template-columns:1fr; } }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 12px 12px; position:relative; min-width:0; }
+  .ch { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px; }
+  .ch h3 { margin:0; font:700 12.5px var(--mono); letter-spacing:.06em; }
+  .ch .sub { color:var(--muted); font-size:12px; }
+  .ch .seg { margin-left:auto; }
+  .legend { display:flex; gap:12px; flex-wrap:wrap; font-size:11.5px; color:var(--muted); margin:2px 0 6px; font-family:var(--mono); }
+  .legend span { display:inline-flex; align-items:center; gap:6px; }
+  canvas { display:block; width:100%; cursor:crosshair; }
+  .tip { position:absolute; pointer-events:none; background:#0e0e10; border:1px solid var(--line); border-radius:8px; padding:7px 10px; font:12px/1.5 var(--mono); display:none; z-index:20; min-width:170px; box-shadow:0 8px 24px rgba(0,0,0,.55); white-space:nowrap; }
+  .tip .h { color:var(--muted); } .tip .r { display:flex; justify-content:space-between; gap:14px; }
+
+  /* ladder */
+  .ladder { height:556px; overflow-y:auto; font:12px var(--mono); border-top:1px solid var(--line); }
+  .lrow { display:grid; grid-template-columns:70px 1fr 74px; align-items:center; gap:8px; height:20px; padding:0 4px; border-bottom:1px solid #1b1b1e; cursor:default; }
+  .lrow:hover { background:var(--panel2); }
+  .lrow .k { color:var(--muted); text-align:right; font-variant-numeric:tabular-nums; }
+  .lrow .val { text-align:right; font-variant-numeric:tabular-nums; }
+  .lrow .bars { position:relative; height:12px; }
+  .lrow .bars::before { content:""; position:absolute; left:50%; top:-4px; bottom:-4px; width:1px; background:var(--line); }
+  .lrow .b { position:absolute; top:0; height:12px; border-radius:2px; }
+  .lrow .b.p { left:calc(50% + 1px); background:var(--pos); }
+  .lrow .b.n { right:calc(50% + 1px); background:var(--neg); }
+  .lrow .tag { font-size:9.5px; font-weight:700; padding:0 4px; border-radius:3px; margin-left:4px; color:#111; }
+  .spotrow { height:22px; display:flex; align-items:center; gap:8px; padding:0 4px; color:var(--text); font:700 11.5px var(--mono); background:linear-gradient(90deg,transparent,#2a2516 30%,#2a2516 70%,transparent); border-bottom:1px solid #3a3220; }
+  .spotrow::before, .spotrow::after { content:""; flex:1; height:1px; background:var(--gold); }
+
+  .news { max-height:520px; overflow-y:auto; border-top:1px solid var(--line); }
+  .ni { display:grid; grid-template-columns:62px 1fr; gap:10px; padding:9px 4px; border-bottom:1px solid #1b1b1e; }
+  .ni:hover { background:var(--panel2); }
+  .ni .tm { font:12px var(--mono); color:var(--muted); }
+  .ni a { color:var(--text); text-decoration:none; font-weight:500; } .ni a:hover { text-decoration:underline; }
+  .ni .meta { font-size:11.5px; color:var(--faint); margin-top:2px; display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .pill { font:700 9.5px var(--mono); padding:1px 5px; border-radius:3px; border:1px solid var(--line); color:var(--muted); }
+  .tone { display:inline-flex; align-items:center; gap:4px; } .tone i { width:8px; height:8px; border-radius:50%; display:inline-block; }
+  section.doc { margin-top:26px; display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr)); gap:10px; }
+  section.doc .card h4 { margin:2px 0 6px; font-size:14px; }
+  section.doc .card p, section.doc li { color:var(--muted); font-size:13px; }
+  section.doc ul { margin:4px 0 0; padding-left:18px; }
+  section.doc a { color:var(--gold); }
+  .err { color:var(--dn); font-family:var(--mono); font-size:12px; }
+  footer { margin-top:24px; color:var(--muted); font-size:12px; border-top:1px solid var(--line); padding-top:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="top">
+    <a href="index.html">The Evolutionary Economy</a><a href="market.html">The Market Mind</a><a href="lineage.html">The Lineage</a><a href="reality.html">Reality Board</a><a href="codex.html">The Codex</a><a href="terminal.html" class="on">Dealer Terminal</a>
+  </nav>
+
+  <div class="bar" role="toolbar" aria-label="Terminal controls">
+    <span class="brand">EUDAIMON · DEALER TERMINAL</span>
+    <div class="seg" id="asset"><button data-v="BTC">BTC</button><button data-v="ETH">ETH</button></div>
+    <div class="seg" id="expsel" title="Which expiries count toward gamma">
+      <button data-v="all">ALL EXP</button><button data-v="next">NEXT</button><button data-v="7">≤7D</button><button data-v="30">≤30D</button>
+    </div>
+    <div class="status"><span id="live"><span class="dot"></span>LIVE · Deribit</span><span id="clock">--:--:-- UTC</span><button class="ghost" id="refresh">↻ REFRESH</button></div>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+  <div class="read" id="read"><div class="h">THE READ</div><p class="muted">Loading live options data…</p></div>
+
+  <div class="main">
+    <div class="card" id="pcard">
+      <div class="ch"><h3 id="ptitle">PRICE</h3><span class="sub">Coinbase spot · dealer levels overlaid</span>
+        <div class="seg" id="tf"><button data-v="15">15m</button><button data-v="60">1h</button><button data-v="360">6h</button><button data-v="1D">1D</button></div></div>
+      <div class="legend" id="plegend"></div>
+      <canvas id="price"></canvas>
+      <div class="tip" id="ptip"></div>
+    </div>
+    <div class="card" id="lcard">
+      <div class="ch"><h3>GEX BY STRIKE</h3><span class="sub">$ per 1% move</span></div>
+      <div class="legend"><span><i class="key" style="background:var(--pos)"></i>dealers long gamma (dampen)</span><span><i class="key" style="background:var(--neg)"></i>short gamma (amplify)</span></div>
+      <div class="ladder" id="ladder"></div>
+      <div class="tip" id="ltip"></div>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="card" id="gcard">
+      <div class="ch"><h3>GAMMA PROFILE</h3><span class="sub">total dealer gamma if spot moved to x · zero crossing = the flip</span></div>
+      <div class="legend"><span><i class="key" style="background:var(--pos)"></i>long gamma zone</span><span><i class="key" style="background:var(--neg)"></i>short gamma zone</span><span><i class="key dash" style="color:var(--gold)"></i>gamma flip</span><span><i class="key" style="background:var(--text)"></i>spot</span></div>
+      <canvas id="profile"></canvas>
+      <div class="tip" id="gtip"></div>
+    </div>
+    <div class="card" id="scard">
+      <div class="ch"><h3>VOLATILITY SMILE</h3><span class="sub">implied vol by strike · out-of-the-money options</span></div>
+      <div class="legend" id="slegend"></div>
+      <canvas id="smile"></canvas>
+      <div class="tip" id="stip"></div>
+    </div>
+  </div>
+
+  <div class="card" id="ncard" style="margin-top:10px">
+    <div class="ch"><h3>NEWS TAPE</h3><span class="sub" id="nsub">crypto + macro headlines · hourly</span>
+      <div class="seg" id="nf"><button data-v="asset">THIS ASSET</button><button data-v="MACRO">MACRO</button><button data-v="all">ALL</button></div></div>
+    <div class="legend"><span><i class="key" style="background:var(--up)"></i>bullish words</span><span><i class="key" style="background:var(--dn)"></i>bearish words</span><span><i class="key" style="background:var(--faint)"></i>neutral</span><span>· dots on the price chart mark when headlines hit</span></div>
+    <div class="news" id="news"><p class="muted" style="padding:8px">Loading headlines…</p></div>
+  </div>
+
+  <section class="doc">
+    <div class="card"><h4>How to read it</h4><ul>
+      <li><b>Gamma flip</b>: above it, dealers are long gamma and trade against the move (chop, pinning). Below it they're short gamma and trade with the move (trends, air pockets).</li>
+      <li><b>Call wall</b>: the strike with the most call gamma. It usually acts as a ceiling until it breaks.</li>
+      <li><b>Put wall</b>: the strike with the most put gamma. It usually acts as a floor.</li>
+      <li><b>Peak GEX</b>: the biggest single gamma strike. Price gets pulled toward it, especially into expiry.</li>
+      <li><b>Max pain</b>: the strike where the next expiry pays option holders the least.</li></ul></div>
+    <div class="card"><h4>Method</h4><p>Every Deribit BTC/ETH option with open interest. Gamma from Black–Scholes using Deribit's mark IV and each expiry's forward price (r = 0, expiry 08:00 UTC). GEX = Γ × OI × S² × 1%, calls positive and puts negative: the standard assumption that customers buy options and dealers sell them. Refreshes every 60 s, computed in your browser. <a href="codex.html#t5">Codex III.5: Dealer Positioning &amp; GEX →</a></p></div>
+    <div class="card"><h4>What this is not</h4><ul>
+      <li>Not actual dealer books. The sign convention is an assumption, and some customers sell options.</li>
+      <li>Deribit only. It's the largest crypto options venue, but CME, OKX, Bybit and on-chain options are excluded.</li>
+      <li>Open interest updates as trades happen. Levels move intraday.</li>
+      <li>News tone is a count of bullish vs bearish words in the headline, not a judgment. Headlines come from public RSS (CoinDesk, Cointelegraph, Decrypt, The Block, Federal Reserve, Google News), refreshed hourly.</li>
+      <li>Educational, not investment advice.</li></ul></div>
+  </section>
+  <footer>Eudaimon Capitol · data: Deribit public API (options), Coinbase (price), public RSS (news) · nothing is stored or sent anywhere.</footer>
+</div>
+
+<script>
+(function(){
+  const API = "https://www.deribit.com/api/v2/public/";
+  const $ = s => document.querySelector(s);
+  const MON = {JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
+  const qs = new URLSearchParams(location.search);
+  const S = { asset: (qs.get("a") || "BTC").toUpperCase() === "ETH" ? "ETH" : "BTC", exp: "all", tf: "60", nf: "asset", news: null, data: null, timer: null };
+  const COL = { pos:"#3987e5", neg:"#d95926", up:"#199e70", dn:"#e66767", gold:"#c9a75e", peak:"#9085e9", text:"#ecebe7", muted:"#9a978f", faint:"#6d6a64", line:"#26262a", mp:"#b5b2aa" };
+
+  // ---------- formatting ----------
+  const fP = v => v == null || !isFinite(v) ? "—" : (v >= 10000 ? Math.round(v).toLocaleString("en-US") : v.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2}));
+  const fK = v => v.toLocaleString("en-US", {maximumFractionDigits:0});
+  const fM = v => { const a = Math.abs(v), s = v < 0 ? "−" : "+"; return a >= 1e9 ? s + "$" + (a/1e9).toFixed(2) + "B" : a >= 1e6 ? s + "$" + (a/1e6).toFixed(a >= 1e7 ? 1 : 2) + "M" : a >= 1e3 ? s + "$" + (a/1e3).toFixed(0) + "K" : s + "$" + a.toFixed(0); };
+  const pct = (a, b) => ((a / b - 1) * 100);
+  const fPct = x => (x >= 0 ? "+" : "−") + Math.abs(x).toFixed(1) + "%";
+
+  // ---------- controls ----------
+  function seg(id, key, cb){ const el = $(id); const sync = () => el.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === S[key]));
+    el.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; S[key] = b.dataset.v; sync(); cb(); }); sync(); }
+  seg("#asset", "asset", () => { history.replaceState(null, "", "?a=" + S.asset); load(); });
+  seg("#expsel", "exp", () => S.data && render());
+  seg("#tf", "tf", () => loadCandles().then(() => S.data && drawPrice()));
+  seg("#nf", "nf", () => renderNews());
+  $("#refresh").addEventListener("click", load);
+  setInterval(() => { const d = new Date(); $("#clock").textContent = d.toISOString().slice(11,19) + " UTC"; }, 1000);
+
+  async function get(path){ const r = await fetch(API + path); if (!r.ok) throw new Error(r.status); const j = await r.json(); if (j.error) throw new Error(j.error.message); return j.result; }
+
+  // ---------- data ----------
+  async function load(){
+    try {
+      const a = S.asset, now = Date.now();
+      const [book, idx] = await Promise.all([
+        get(`get_book_summary_by_currency?currency=${a}&kind=option`),
+        get(`get_index_price?index_name=${a.toLowerCase()}_usd`) ]);
+      const spot = idx.index_price, opts = [];
+      for (const o of book) {
+        const p = o.instrument_name.split("-"); if (p.length !== 4) continue;
+        const m = p[1].match(/^(\d{1,2})([A-Z]{3})(\d{2})$/); if (!m) continue;
+        const expMs = Date.UTC(2000 + +m[3], MON[m[2]], +m[1], 8), T = (expMs - now) / 31557600000;
+        if (T <= 0 || !o.open_interest || !o.mark_iv) continue;
+        opts.push({ K:+p[2], cp:p[3], oi:o.open_interest, iv:o.mark_iv / 100, T, u:o.underlying_price || spot, expMs, exp:p[1] });
+      }
+      S.data = { spot, opts, at: new Date() };
+      await Promise.all([loadCandles(), loadNews()]);
+      $("#live").innerHTML = `<span class="dot"></span>LIVE · Deribit · ${opts.length} options`;
+      render();
+    } catch (e) {
+      $("#live").innerHTML = `<span class="dot off"></span>OFFLINE`;
+      $("#read").innerHTML = `<div class="h">THE READ</div><p class="err">Could not reach Deribit (${String(e.message || e)}). Live data loads on the published site: lakelx.github.io/eudaimon-model/terminal.html</p>`;
+    }
+  }
+  async function loadNews(){
+    if (S.news && Date.now() - S.newsAt < 300000) return;
+    try { const r = await fetch("data/news.json?ts=" + Math.floor(Date.now() / 300000)); S.news = await r.json(); S.newsAt = Date.now(); }
+    catch (e) { S.news = null; }
+  }
+  const toneCol = t => t > 0 ? COL.up : t < 0 ? COL.dn : COL.faint;
+  const ago = iso => { const m = (Date.now() - Date.parse(iso)) / 60000; return m < 60 ? Math.max(1, Math.round(m)) + "m" : m < 1440 ? Math.round(m / 60) + "h" : Math.round(m / 1440) + "d"; };
+  const escH = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  function newsFor(mode){ if (!S.news) return []; const it = S.news.items; return mode === "all" ? it : mode === "MACRO" ? it.filter(i => i.tags.includes("MACRO")) : it.filter(i => i.tags.includes(S.asset)); }
+  function renderNews(){
+    const box = $("#news"); if (!S.news) { box.innerHTML = `<p class="muted" style="padding:8px">Headlines load on the published site.</p>`; return; }
+    const it = newsFor(S.nf).slice(0, 120);
+    const d24 = newsFor("asset").concat(newsFor("MACRO")).filter(i => Date.now() - Date.parse(i.t) < 86400000);
+    const b = d24.filter(i => i.tone > 0).length, r = d24.filter(i => i.tone < 0).length;
+    $("#nsub").textContent = `${S.news.count} headlines · fetched ${S.news.fetched} · 24h tone for ${S.asset} + macro: ${b} bullish / ${r} bearish`;
+    box.innerHTML = it.length ? it.map(i => `<div class="ni"><div class="tm">${ago(i.t)} ago</div><div><a href="${escH(i.link)}" target="_blank" rel="noopener noreferrer">${escH(i.title)}</a>
+      <div class="meta"><span class="tone"><i style="background:${toneCol(i.tone)}"></i></span>${escH(i.source)} · ${i.t.slice(5,16).replace("T"," ")} UTC ${i.tags.map(t => `<span class="pill">${t}</span>`).join("")}</div></div></div>`).join("") : `<p class="muted" style="padding:8px">No headlines in this filter.</p>`;
+  }
+  async function loadCandles(){ // Coinbase spot candles (Deribit's chart endpoint has no CORS)
+    const g = { "15": 900, "60": 3600, "360": 21600, "1D": 86400 }[S.tf];
+    try {
+      const r = await fetch(`https://api.exchange.coinbase.com/products/${S.asset}-USD/candles?granularity=${g}`); const a = (await r.json()).slice().reverse();
+      if (!Array.isArray(a) || !a.length) throw 0;
+      S.candles = { ticks:a.map(c => c[0] * 1000), low:a.map(c => c[1]), high:a.map(c => c[2]), open:a.map(c => c[3]), close:a.map(c => c[4]) };
+    } catch (e) { S.candles = null; }
+  }
+
+  // ---------- gamma math ----------
+  const SQ2PI = Math.sqrt(2 * Math.PI);
+  function gexAt(o, spotNow, x){ // dollar gamma per 1% move if the index were at x
+    const s = x * o.u / spotNow, t = Math.max(o.T, 1 / 8760), sd = o.iv * Math.sqrt(t);
+    const d1 = (Math.log(s / o.K) + 0.5 * sd * sd) / sd;
+    const g = Math.exp(-0.5 * d1 * d1) / (SQ2PI * s * sd);
+    return g * o.oi * s * s * 0.01 * (o.cp === "C" ? 1 : -1);
+  }
+  function selected(){
+    const o = S.data.opts, exps = [...new Set(o.map(x => x.expMs))].sort((a, b) => a - b);
+    if (S.exp === "next") return { set: o.filter(x => x.expMs === exps[0]), label: "next expiry (" + o.find(x => x.expMs === exps[0]).exp + ")" };
+    if (S.exp === "7") return { set: o.filter(x => x.T <= 7 / 365.25), label: "expiries ≤ 7 days" };
+    if (S.exp === "30") return { set: o.filter(x => x.T <= 30 / 365.25), label: "expiries ≤ 30 days" };
+    return { set: o, label: "all expiries" };
+  }
+  function compute(){
+    const { spot } = S.data, { set, label } = selected();
+    const ks = {};
+    let net = 0;
+    for (const o of set) { const g = gexAt(o, spot, spot); net += g; const r = ks[o.K] || (ks[o.K] = { K:o.K, c:0, p:0, coi:0, poi:0 }); if (o.cp === "C") { r.c += g; r.coi += o.oi; } else { r.p += g; r.poi += o.oi; } }
+    const rows = Object.values(ks).sort((a, b) => b.K - a.K);
+    const near = rows.filter(r => r.K > spot * 0.6 && r.K < spot * 1.6);
+    const cw = near.reduce((a, r) => r.c > (a ? a.c : 0) ? r : a, null);
+    const pw = near.reduce((a, r) => r.p < (a ? a.p : 0) ? r : a, null);
+    const pk = near.reduce((a, r) => Math.abs(r.c + r.p) > (a ? Math.abs(a.c + a.p) : 0) ? r : a, null);
+    // profile
+    const N = 161, lo = spot * 0.8, hi = spot * 1.2, prof = [];
+    for (let i = 0; i < N; i++) { const x = lo + (hi - lo) * i / (N - 1); let s = 0; for (const o of set) s += gexAt(o, spot, x); prof.push([x, s]); }
+    let flip = null, best = Infinity;
+    for (let i = 1; i < N; i++) { const [x0, y0] = prof[i-1], [x1, y1] = prof[i]; if ((y0 <= 0 && y1 > 0) || (y0 >= 0 && y1 < 0)) { const x = x0 + (x1 - x0) * (-y0) / (y1 - y0); if (Math.abs(x - spot) < best) { best = Math.abs(x - spot); flip = x; } } }
+    // max pain on next expiry
+    const all = S.data.opts, nx = Math.min(...all.map(o => o.expMs)), nset = all.filter(o => o.expMs === nx);
+    const cands = [...new Set(nset.map(o => o.K))].sort((a, b) => a - b);
+    let mp = null, mpv = Infinity;
+    for (const k of cands) { let pay = 0; for (const o of nset) pay += o.oi * (o.cp === "C" ? Math.max(0, k - o.K) : Math.max(0, o.K - k)); if (pay < mpv) { mpv = pay; mp = k; } }
+    // ATM IV (first expiry > 1 day out), put/call OI
+    const exps = [...new Set(all.map(o => o.expMs))].sort((a, b) => a - b);
+    const e1 = exps.find(e => e - Date.now() > 86400000) || exps[0];
+    const atm = all.filter(o => o.expMs === e1).sort((a, b) => Math.abs(a.K - spot) - Math.abs(b.K - spot)).slice(0, 2);
+    const atmIv = atm.reduce((s, o) => s + o.iv, 0) / (atm.length || 1);
+    const coi = set.filter(o => o.cp === "C").reduce((s, o) => s + o.oi, 0), poi = set.filter(o => o.cp === "P").reduce((s, o) => s + o.oi, 0);
+    return { spot, label, rows, cw, pw, pk, prof, flip, net, mp, mpExp: nset[0] && nset[0].exp, atmIv, pcr: poi / (coi || 1), e1 };
+  }
+
+  // ---------- render ----------
+  function render(){ const R = S.R = compute(); tiles(R); read(R); ladder(R); drawPrice(); drawProfile(); drawSmile(); renderNews(); }
+
+  function tiles(R){
+    const t = (l, v, s, key) => `<div class="tile"><div class="l">${key || ""}${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+    const k = (c, dash) => `<i class="key${dash ? " dash" : ""}" style="${dash ? "color:" : "background:"}${c}"></i>`;
+    const d = x => x == null ? "" : fPct(pct(x, R.spot)) + " from spot";
+    $("#tiles").innerHTML = [
+      t(S.asset + " index", "$" + fP(R.spot), S.data.at.toISOString().slice(11,19) + " UTC"),
+      t("Dealer gamma", R.net >= 0 ? "LONG" : "SHORT", fM(R.net) + " / 1%"),
+      t("Gamma flip", R.flip ? "$" + fP(R.flip) : "none ±20%", R.flip ? d(R.flip) : "one-sided", k(COL.gold, true)),
+      t("Call wall", R.cw ? "$" + fK(R.cw.K) : "—", R.cw ? fM(R.cw.c) + " · " + d(R.cw.K) : "", k(COL.pos)),
+      t("Put wall", R.pw ? "$" + fK(R.pw.K) : "—", R.pw ? fM(R.pw.p) + " · " + d(R.pw.K) : "", k(COL.neg)),
+      t("Peak GEX", R.pk ? "$" + fK(R.pk.K) : "—", R.pk ? fM(R.pk.c + R.pk.p) : "", k(COL.peak)),
+      t("Max pain", R.mp ? "$" + fK(R.mp) : "—", R.mpExp ? "expiry " + R.mpExp : "", k(COL.mp, true)),
+      t("ATM IV · P/C OI", (R.atmIv * 100).toFixed(1) + "%", "put/call " + R.pcr.toFixed(2))
+    ].join("");
+  }
+
+  function read(R){
+    const a = S.asset, ps = [];
+    if (R.flip) {
+      if (R.spot > R.flip) ps.push(`<b>${a} is above the gamma flip ($${fP(R.flip)}, ${fPct(pct(R.flip, R.spot))}).</b> Dealers are long gamma: they sell rallies and buy dips, so expect chop and pinning${R.pk ? ` toward peak GEX at <b>$${fK(R.pk.K)}</b>` : ""}. A break below $${fP(R.flip)} flips them short gamma and opens a faster move${R.pw ? ` toward the put wall at <b>$${fK(R.pw.K)}</b>` : ""}.`);
+      else ps.push(`<b>${a} is below the gamma flip ($${fP(R.flip)}, ${fPct(pct(R.flip, R.spot))}).</b> Dealers are short gamma: they sell into drops and buy into rallies, so moves extend. Reclaiming $${fP(R.flip)} calms it down${R.pw ? `; the put wall at <b>$${fK(R.pw.K)}</b> is the next floor` : ""}.`);
+    } else ps.push(`<b>No gamma flip within ±20%.</b> Dealers are net ${R.net >= 0 ? "long" : "short"} gamma across the whole range, so the regime is ${R.net >= 0 ? "dampening" : "amplifying"} everywhere nearby.`);
+    if (R.cw) ps.push(`Call wall <b>$${fK(R.cw.K)}</b> (${fPct(pct(R.cw.K, R.spot))}) is the ceiling dealers defend until it breaks. ${R.mp ? `Max pain for ${R.mpExp} sits at <b>$${fK(R.mp)}</b>.` : ""} ATM implied vol is ${(R.atmIv * 100).toFixed(1)}%, a one-day 1σ move of about <b>±$${fP(R.spot * R.atmIv / Math.sqrt(365))}</b>.`);
+    $("#read").innerHTML = `<div class="h">THE READ · ${R.label.toUpperCase()}</div>` + ps.map(p => `<p>${p}</p>`).join("");
+  }
+
+  function ladder(R){
+    const rows = R.rows.filter(r => r.K >= R.spot * 0.8 && r.K <= R.spot * 1.2 && (r.coi + r.poi) > 0);
+    const mx = Math.max(...rows.map(r => Math.max(Math.abs(r.c), Math.abs(r.p), Math.abs(r.c + r.p))), 1);
+    const tag = (txt, c) => `<span class="tag" style="background:${c}">${txt}</span>`;
+    let html = "", spotDone = false;
+    rows.forEach((r, i) => {
+      if (!spotDone && r.K < R.spot) { html += `<div class="spotrow" id="spotrow">SPOT $${fP(R.spot)}</div>`; spotDone = true; }
+      const n = r.c + r.p, w = Math.abs(n) / mx * 50;
+      let tags = "";
+      if (R.cw && r.K === R.cw.K) tags += tag("CW", COL.pos);
+      if (R.pw && r.K === R.pw.K) tags += tag("PW", COL.neg);
+      if (R.pk && r.K === R.pk.K) tags += tag("PEAK", COL.peak);
+      if (R.mp && r.K === R.mp) tags += tag("MP", COL.mp);
+      const nxt = rows[i + 1];
+      if (R.flip && nxt && r.K >= R.flip && nxt.K < R.flip) tags += tag("FLIP↓", COL.gold);
+      // tags sit on the empty side of the zero line so they never cover the bar
+      const tagSpan = tags ? `<span style="position:absolute;top:-1px;${n >= 0 ? "right:calc(50% + 4px)" : "left:calc(50% + 4px)"};white-space:nowrap">${tags}</span>` : "";
+      html += `<div class="lrow" data-i="${i}"><div class="k">${fK(r.K)}</div><div class="bars"><div class="b ${n >= 0 ? "p" : "n"}" style="width:${w}%"></div>${tagSpan}</div><div class="val">${fM(n)}</div></div>`;
+    });
+    if (!spotDone) html += `<div class="spotrow" id="spotrow">SPOT $${fP(R.spot)}</div>`;
+    const L = $("#ladder"); L.innerHTML = html; S.lrows = rows;
+    const sr = $("#spotrow"); if (sr) L.scrollTop = sr.offsetTop - L.offsetTop - L.clientHeight / 2;
+  }
+  $("#ladder").addEventListener("mousemove", e => {
+    const row = e.target.closest(".lrow"), tip = $("#ltip"); if (!row) { tip.style.display = "none"; return; }
+    const r = S.lrows[+row.dataset.i], c = $("#lcard").getBoundingClientRect(), b = row.getBoundingClientRect();
+    tip.innerHTML = `<div class="h">Strike $${fK(r.K)} · ${fPct(pct(r.K, S.R.spot))}</div><div class="r"><span>Net GEX</span><span>${fM(r.c + r.p)}</span></div><div class="r"><span>Call GEX</span><span>${fM(r.c)}</span></div><div class="r"><span>Put GEX</span><span>${fM(r.p)}</span></div><div class="r"><span>Call OI</span><span>${r.coi.toLocaleString("en-US",{maximumFractionDigits:1})}</span></div><div class="r"><span>Put OI</span><span>${r.poi.toLocaleString("en-US",{maximumFractionDigits:1})}</span></div>`;
+    tip.style.display = "block"; tip.style.left = "12px"; tip.style.top = Math.min(b.bottom - c.top + 4, c.height - 140) + "px";
+  });
+  $("#ladder").addEventListener("mouseleave", () => $("#ltip").style.display = "none");
+
+  // ---------- canvas helpers ----------
+  function setup(id, h){ const c = $(id), w = c.clientWidth, dpr = window.devicePixelRatio || 1; c.width = w * dpr; c.height = h * dpr; c.style.height = h + "px"; const x = c.getContext("2d"); x.setTransform(dpr, 0, 0, dpr, 0, 0); x.font = "11px 'JetBrains Mono', monospace"; return { x, w, h }; }
+  function hline(x, y, x0, x1, col, dash){ x.save(); x.strokeStyle = col; x.lineWidth = dash ? 1.5 : 1; x.setLineDash(dash || []); x.beginPath(); x.moveTo(x0, y); x.lineTo(x1, y); x.stroke(); x.restore(); }
+  function tipAt(tipId, cardId, px, py, html){ const t = $(tipId), c = $(cardId), cv = c.querySelector("canvas"); t.innerHTML = html; t.style.display = "block";
+    const off = cv.offsetTop; let l = px + 14; if (l + t.offsetWidth > c.clientWidth - 8) l = px - t.offsetWidth - 14; t.style.left = Math.max(4, l) + "px"; t.style.top = (off + Math.max(0, py - 20)) + "px"; }
+  function hideTip(id){ $(id).style.display = "none"; }
+
+  // ---------- price chart ----------
+  function levels(R){ const L = [];
+    if (R.flip) L.push({ v:R.flip, n:"FLIP", c:COL.gold, dash:[6,4] });
+    if (R.cw) L.push({ v:R.cw.K, n:"CALL WALL", c:COL.pos });
+    if (R.pw) L.push({ v:R.pw.K, n:"PUT WALL", c:COL.neg });
+    if (R.pk) L.push({ v:R.pk.K, n:"PEAK GEX", c:COL.peak });
+    if (R.mp) L.push({ v:R.mp, n:"MAX PAIN", c:COL.mp, dash:[2,4] });
+    const out = []; L.forEach(l => { const m = out.find(o => Math.abs(o.v - l.v) < 1e-9); if (m) m.n += " · " + l.n; else out.push({ ...l }); });
+    return out; }
+  function drawPrice(){
+    const R = S.R; if (!R) return;
+    $("#ptitle").textContent = `${S.asset}-USD · ${S.tf === "1D" ? "1D" : S.tf === "360" ? "6h" : S.tf === "60" ? "1h" : "15m"}`;
+    const { x, w, h } = setup("#price", 520), C = S.candles;
+    const padL = 8, padR = 92, padT = 18, padB = 22, W = w - padL - padR, H = h - padT - padB;
+    const L = levels(R);
+    $("#plegend").innerHTML = L.map(l => `<span><i class="key${l.dash ? " dash" : ""}" style="${l.dash ? "color" : "background"}:${l.c}"></i>${l.n} $${fP(l.v)}</span>`).join("");
+    if (!C || !C.close || !C.close.length) { x.fillStyle = COL.muted; x.fillText("Price history unavailable.", 20, 40); return; }
+    const n = C.close.length; let lo = Math.min(...C.low), hi = Math.max(...C.high);
+    L.forEach(l => { if (l.v > lo * 0.96 && l.v < hi * 1.04) { lo = Math.min(lo, l.v); hi = Math.max(hi, l.v); } });
+    const pad = (hi - lo) * 0.06; lo -= pad; hi += pad;
+    const Y = v => padT + (1 - (v - lo) / (hi - lo)) * H, X = i => padL + (i + 0.5) * W / n;
+    // grid + axis
+    x.fillStyle = COL.faint; x.textAlign = "left";
+    for (let k = 0; k <= 5; k++) { const v = lo + (hi - lo) * k / 5, y = Y(v); hline(x, y, padL, padL + W, "#1c1c1f"); if (Math.abs(y - Y(R.spot)) > 14) x.fillText(fP(v), padL + W + 8, y + 4); }
+    const step = Math.ceil(n / 6);
+    for (let i = 0; i < n; i += step) { const d = new Date(C.ticks[i]); x.fillText(S.tf === "1D" || S.tf === "360" ? d.toISOString().slice(5,10) : d.toISOString().slice(5,10) + " " + d.toISOString().slice(11,16), X(i) - 30, h - 6); }
+    // candles
+    const bw = Math.max(1.5, W / n * 0.62);
+    for (let i = 0; i < n; i++) { const o = C.open[i], c = C.close[i], up = c >= o, col = up ? COL.up : COL.dn;
+      x.strokeStyle = col; x.beginPath(); x.moveTo(X(i), Y(C.high[i])); x.lineTo(X(i), Y(C.low[i])); x.stroke();
+      x.fillStyle = col; const y0 = Y(Math.max(o, c)), y1 = Y(Math.min(o, c)); x.fillRect(X(i) - bw / 2, y0, bw, Math.max(1, y1 - y0)); }
+    // levels, with label collision avoidance
+    const tags = [];
+    L.forEach(l => { if (l.v >= lo && l.v <= hi) { hline(x, Y(l.v), padL, padL + W, l.c, l.dash); tags.push({ y:Y(l.v), t:`${l.n} ${fP(l.v)}`, c:l.c }); }
+      else tags.push({ y: l.v > hi ? padT + 2 : padT + H - 2, t:`${l.v > hi ? "↑" : "↓"} ${l.n} ${fP(l.v)}`, c:l.c, off:true }); });
+    // spot
+    const sy = Y(R.spot); hline(x, sy, padL, padL + W, "rgba(236,235,231,.5)", [1,3]);
+    tags.sort((a, b) => a.y - b.y);
+    const yMax = padT + H - 20; // keep clear of the headline dots
+    for (let i = 1; i < tags.length; i++) if (tags[i].y - tags[i-1].y < 15) tags[i].y = tags[i-1].y + 15;
+    if (tags.length && tags[tags.length-1].y > yMax) { tags[tags.length-1].y = yMax; for (let i = tags.length - 2; i >= 0; i--) if (tags[i+1].y - tags[i].y < 15) tags[i].y = tags[i+1].y - 15; }
+    x.textAlign = "right";
+    tags.forEach(t => { const tw = x.measureText(t.t).width + 10; x.fillStyle = "rgba(11,11,12,.85)"; x.fillRect(padL + W - tw - 4, t.y - 9, tw, 15); x.fillStyle = t.c; x.fillText(t.t, padL + W - 9, t.y + 3); });
+    x.textAlign = "left"; x.fillStyle = COL.text; x.fillRect(padL + W + 2, sy - 9, padR - 4, 17); x.fillStyle = "#111"; x.font = "bold 11px 'JetBrains Mono', monospace"; x.fillText(fP(R.spot), padL + W + 8, sy + 4);
+    // headline markers along the bottom of the plot
+    S.pnews = {};
+    const res = n > 1 ? C.ticks[1] - C.ticks[0] : 3600000;
+    newsFor("asset").concat(newsFor("MACRO").filter(i => !i.tags.includes(S.asset))).forEach(it => { const t = Date.parse(it.t); if (t < C.ticks[0] || t >= C.ticks[n-1] + res) return;
+      let i = Math.min(n - 1, Math.floor((t - C.ticks[0]) / res)); while (i > 0 && C.ticks[i] > t) i--; (S.pnews[i] = S.pnews[i] || []).push(it); });
+    Object.entries(S.pnews).forEach(([i, arr]) => { const tone = arr.reduce((a, b) => a + b.tone, 0), r = Math.min(6, 2.5 + arr.length * 0.6);
+      x.fillStyle = toneCol(tone); x.strokeStyle = "#121214"; x.lineWidth = 1.5; x.beginPath(); x.arc(X(+i), padT + H - 8, r, 0, 7); x.fill(); x.stroke(); });
+    S.pgeo = { padL, W, n, X, Y, lo, hi, padT, H };
+  }
+  $("#price").addEventListener("mousemove", e => {
+    const G = S.pgeo, C = S.candles; if (!G || !C) return; const r = e.target.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+    const i = Math.max(0, Math.min(G.n - 1, Math.floor((mx - G.padL) / G.W * G.n)));
+    drawPrice(); const { x } = { x: $("#price").getContext("2d") };
+    x.save(); x.strokeStyle = "rgba(236,235,231,.35)"; x.setLineDash([3,3]); x.beginPath(); x.moveTo(G.X(i), G.padT); x.lineTo(G.X(i), G.padT + G.H); x.moveTo(G.padL, my); x.lineTo(G.padL + G.W, my); x.stroke(); x.restore();
+    const d = new Date(C.ticks[i]), ch = (C.close[i] / C.open[i] - 1) * 100, pv = G.lo + (1 - (my - G.padT) / G.H) * (G.hi - G.lo);
+    tipAt("#ptip", "#pcard", mx, my, `<div class="h">${d.toISOString().slice(0,16).replace("T"," ")} UTC</div><div class="r"><span>Open</span><span>${fP(C.open[i])}</span></div><div class="r"><span>High</span><span>${fP(C.high[i])}</span></div><div class="r"><span>Low</span><span>${fP(C.low[i])}</span></div><div class="r"><span>Close</span><span>${fP(C.close[i])} (${fPct(ch)})</span></div><div class="r"><span>Cursor</span><span>${fP(pv)}</span></div>` + ((S.pnews && S.pnews[i]) ? `<div class="h" style="margin-top:6px">${S.pnews[i].length} headline${S.pnews[i].length > 1 ? "s" : ""}</div>` + S.pnews[i].slice(0, 4).map(h => `<div style="white-space:normal;max-width:320px;color:${toneCol(h.tone)}">• <span style="color:var(--text)">${escH(h.title)}</span></div>`).join("") : ""));
+  });
+  $("#price").addEventListener("mouseleave", () => { hideTip("#ptip"); drawPrice(); });
+
+  // ---------- gamma profile ----------
+  function drawProfile(){
+    const R = S.R, { x, w, h } = setup("#profile", 300), P = R.prof;
+    const padL = 70, padR = 12, padT = 12, padB = 24, W = w - padL - padR, H = h - padT - padB;
+    let ymax = Math.max(...P.map(p => Math.abs(p[1]))) * 1.1 || 1;
+    const X = v => padL + (v - P[0][0]) / (P[P.length-1][0] - P[0][0]) * W, Y = v => padT + (1 - (v + ymax) / (2 * ymax)) * H;
+    x.fillStyle = COL.faint; x.textAlign = "right";
+    [-1, -0.5, 0, 0.5, 1].forEach(k => { const v = k * ymax, y = Y(v); hline(x, y, padL, padL + W, k === 0 ? "#3a3a40" : "#1c1c1f"); x.fillText(fM(v).replace("+", ""), padL - 6, y + 4); });
+    x.textAlign = "center"; for (let k = 0; k <= 4; k++) { const v = P[0][0] + (P[P.length-1][0] - P[0][0]) * k / 4; x.fillText(fK(v), X(v), h - 6); }
+    // tinted areas by sign
+    for (let i = 1; i < P.length; i++) { const [x0, y0] = P[i-1], [x1, y1] = P[i]; x.fillStyle = (y0 + y1) / 2 >= 0 ? "rgba(57,135,229,.22)" : "rgba(217,89,38,.22)";
+      x.beginPath(); x.moveTo(X(x0), Y(0)); x.lineTo(X(x0), Y(y0)); x.lineTo(X(x1), Y(y1)); x.lineTo(X(x1), Y(0)); x.closePath(); x.fill(); }
+    x.lineWidth = 2; for (let i = 1; i < P.length; i++) { const [x0, y0] = P[i-1], [x1, y1] = P[i]; x.strokeStyle = (y0 + y1) / 2 >= 0 ? COL.pos : COL.neg; x.beginPath(); x.moveTo(X(x0), Y(y0)); x.lineTo(X(x1), Y(y1)); x.stroke(); }
+    x.lineWidth = 1;
+    const vline = (v, c, dash, lab) => { x.save(); x.strokeStyle = c; x.setLineDash(dash || []); x.lineWidth = 1.5; x.beginPath(); x.moveTo(X(v), padT); x.lineTo(X(v), padT + H); x.stroke(); x.restore(); x.fillStyle = c; x.textAlign = "left"; x.fillText(lab, Math.min(X(v) + 5, padL + W - 110), padT + 12); };
+    vline(R.spot, COL.text, null, "SPOT " + fP(R.spot));
+    if (R.flip) { x.save(); x.translate(0, 16); vline(R.flip, COL.gold, [6,4], "FLIP " + fP(R.flip)); x.restore(); }
+    S.ggeo = { X, Y, padL, W, padT, H, P };
+  }
+  $("#profile").addEventListener("mousemove", e => {
+    const G = S.ggeo; if (!G) return; const r = e.target.getBoundingClientRect(), mx = e.clientX - r.left;
+    const i = Math.max(0, Math.min(G.P.length - 1, Math.round((mx - G.padL) / G.W * (G.P.length - 1)))), p = G.P[i];
+    drawProfile(); const x = $("#profile").getContext("2d");
+    x.save(); x.strokeStyle = "rgba(236,235,231,.35)"; x.setLineDash([3,3]); x.beginPath(); x.moveTo(G.X(p[0]), G.padT); x.lineTo(G.X(p[0]), G.padT + G.H); x.stroke(); x.restore();
+    x.fillStyle = p[1] >= 0 ? COL.pos : COL.neg; x.strokeStyle = "#121214"; x.lineWidth = 2; x.beginPath(); x.arc(G.X(p[0]), G.Y(p[1]), 5, 0, 7); x.fill(); x.stroke();
+    tipAt("#gtip", "#gcard", G.X(p[0]), G.Y(p[1]), `<div class="h">If ${S.asset} were at $${fP(p[0])} (${fPct(pct(p[0], S.R.spot))})</div><div class="r"><span>Dealer gamma</span><span>${fM(p[1])} / 1%</span></div><div class="r"><span>Regime</span><span>${p[1] >= 0 ? "long · dampening" : "short · amplifying"}</span></div>`);
+  });
+  $("#profile").addEventListener("mouseleave", () => { hideTip("#gtip"); drawProfile(); });
+
+  // ---------- smile ----------
+  function drawSmile(){
+    const R = S.R, all = S.data.opts, spot = R.spot, exps = [...new Set(all.map(o => o.expMs))].sort((a, b) => a - b);
+    const e1 = R.e1, target = Date.now() + 30 * 86400000, e2 = exps.filter(e => e !== e1).reduce((a, e) => Math.abs(e - target) < Math.abs(a - target) ? e : a, exps[exps.length - 1]);
+    const series = [[e1, "#3987e5"], [e2, "#c98500"]].map(([e, c]) => {
+      const pts = all.filter(o => o.expMs === e && o.K > spot * 0.7 && o.K < spot * 1.3 && ((o.cp === "P" && o.K < spot) || (o.cp === "C" && o.K >= spot))).map(o => [o.K, o.iv * 100]).sort((a, b) => a[0] - b[0]);
+      const ex = all.find(o => o.expMs === e); return { c, pts, name: ex ? ex.exp : "", days: Math.round((e - Date.now()) / 86400000) }; }).filter(s => s.pts.length > 2);
+    $("#slegend").innerHTML = series.map(s => `<span><i class="key" style="background:${s.c}"></i>${s.name} · ${s.days}d</span>`).join("") + `<span><i class="key" style="background:var(--text)"></i>spot</span>`;
+    const { x, w, h } = setup("#smile", 300), padL = 48, padR = 12, padT = 12, padB = 24, W = w - padL - padR, H = h - padT - padB;
+    if (!series.length) { x.fillStyle = COL.muted; x.fillText("Not enough strikes.", 20, 40); return; }
+    const xs = series.flatMap(s => s.pts.map(p => p[0])), ys = series.flatMap(s => s.pts.map(p => p[1]));
+    const x0 = Math.min(...xs), x1 = Math.max(...xs); let y0 = Math.min(...ys), y1 = Math.max(...ys); const pd = (y1 - y0) * 0.1 + 1; y0 -= pd; y1 += pd;
+    const X = v => padL + (v - x0) / (x1 - x0) * W, Y = v => padT + (1 - (v - y0) / (y1 - y0)) * H;
+    x.fillStyle = COL.faint; x.textAlign = "right"; for (let k = 0; k <= 4; k++) { const v = y0 + (y1 - y0) * k / 4; hline(x, Y(v), padL, padL + W, "#1c1c1f"); x.fillText(v.toFixed(0) + "%", padL - 6, Y(v) + 4); }
+    x.textAlign = "center"; for (let k = 0; k <= 4; k++) { const v = x0 + (x1 - x0) * k / 4; x.fillText(fK(v), X(v), h - 6); }
+    x.save(); x.strokeStyle = "rgba(236,235,231,.6)"; x.setLineDash([2,3]); x.beginPath(); x.moveTo(X(spot), padT); x.lineTo(X(spot), padT + H); x.stroke(); x.restore();
+    series.forEach(s => { x.strokeStyle = s.c; x.lineWidth = 2; x.beginPath(); s.pts.forEach((p, i) => i ? x.lineTo(X(p[0]), Y(p[1])) : x.moveTo(X(p[0]), Y(p[1]))); x.stroke(); x.lineWidth = 1;
+      const lp = s.pts[s.pts.length - 1]; x.fillStyle = COL.muted; x.textAlign = "right"; x.fillText(s.name, X(lp[0]) - 4, Y(lp[1]) - 7); });
+    S.sgeo = { X, Y, series, padL, W, padT, H, x0, x1 };
+  }
+  $("#smile").addEventListener("mousemove", e => {
+    const G = S.sgeo; if (!G) return; const r = e.target.getBoundingClientRect(), mx = e.clientX - r.left, kv = G.x0 + (mx - G.padL) / G.W * (G.x1 - G.x0);
+    drawSmile(); const x = $("#smile").getContext("2d");
+    x.save(); x.strokeStyle = "rgba(236,235,231,.35)"; x.setLineDash([3,3]); x.beginPath(); x.moveTo(mx, G.padT); x.lineTo(mx, G.padT + G.H); x.stroke(); x.restore();
+    let rows = "", py = G.padT + G.H / 2;
+    G.series.forEach(s => { const p = s.pts.reduce((a, q) => Math.abs(q[0] - kv) < Math.abs(a[0] - kv) ? q : a); py = Math.min(py, G.Y(p[1]));
+      x.fillStyle = s.c; x.strokeStyle = "#121214"; x.lineWidth = 2; x.beginPath(); x.arc(G.X(p[0]), G.Y(p[1]), 5, 0, 7); x.fill(); x.stroke();
+      rows += `<div class="r"><span><i class="key" style="background:${s.c}"></i> ${s.name} $${fK(p[0])}</span><span>${p[1].toFixed(1)}%</span></div>`; });
+    tipAt("#stip", "#scard", mx, py, `<div class="h">Strike ≈ $${fK(kv)} (${fPct(pct(kv, S.R.spot))})</div>` + rows);
+  });
+  $("#smile").addEventListener("mouseleave", () => { hideTip("#stip"); drawSmile(); });
+
+  // ---------- loop ----------
+  let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => S.R && (drawPrice(), drawProfile(), drawSmile()), 150); });
+  load();
+  setInterval(() => { if (!document.hidden) load(); }, 60000);
+})();
+</script>
+</body>
+</html>
