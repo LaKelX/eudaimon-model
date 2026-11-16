@@ -2,7 +2,7 @@
 // Chapter: { id, t: title, k: kicker, who: [thinkers], core: [ideas], f: formula (HTML), fm: what the formula means,
 //            use: how Angelo uses it, link: [href, label] (optional) }
 window.CODEX = {
-  version: "v0.1 · Nov 10, 2026",
+  version: "v0.2 · Nov 16, 2026",
   volumes: [
     { id: "e", name: "Economics", roman: "I", color: "#c98500",
       thesis: "Value flows to whatever is scarce. Every school of economics is an argument about what is scarce, and who gets paid for it.",
@@ -403,10 +403,180 @@ window.CODEX = {
           f: "Score = Σ<sub>k=1..6</sub> w<sub>k</sub> · s<sub>k</sub>",
           fm: "Weighted score across the six questions sets the tier: S, A, Tier-0 watch, or pass.",
           use: "This is the Tier-0 roster process. The overdue roster review should re-score every name on all six questions." }
+      ] },
+    { id: "k", name: "Method", roman: "V", color: "#9085e9",
+      thesis: "Before you publish what you know, know how you know it. The history of ideas, the tools of judgment, and the line between evidence and story.",
+      chapters: [
+        { id: "k1", t: "The Tree of Knowledge", k: "Memory, reason, imagination: Bacon's map, drawn by Diderot, still the best filing system for a mind.",
+          who: ["Francis Bacon", "Denis Diderot", "Jean le Rond d'Alembert", "Benjamin Heller (translation)"],
+          core: [
+            "Bacon (The Advancement of Learning, 1605) sorted all learning by the faculty it uses: memory gives history, reason gives philosophy, imagination gives poetry.",
+            "Diderot and d'Alembert drew it as the 'Figurative System of Human Knowledge' for the Encyclopédie (1751). Every article was filed to a branch.",
+            "Economics is on the tree, under Reason → Science of Man → Ethics → Science of laws (jurisprudence) → economic. Politics sits next to it. Commerce on land and sea is a branch of particular ethics.",
+            "Trading's mathematics is there too: Mixed mathematics → Art of conjecture → Analysis of chance, the root of probability theory.",
+            "The tree classes alchemy as a branch of chemistry, and divination and black magic under the science of spirits. In 1751 the line between science and its shadow was still being drawn, and the tree shows exactly where."
+          ],
+          f: "Understanding = Memory (history) + Reason (philosophy) + Imagination (poetry)",
+          fm: "Every claim belongs to a faculty: what happened, what follows, or what could be. Label which one you're using.",
+          use: "Every paper states its faculty: historical evidence, a formal model, or a narrative. Mixing them without labels is how weak papers, and conspiracy maps, get built. The Codex tree below shows where each chapter lives and which branches are still empty.",
+          src: ["Francis Bacon, The Advancement of Learning (1605)", "Jean le Rond d'Alembert, Preliminary Discourse to the Encyclopédie (1751)", "Benjamin Heller, trans., 'Figurative System of Human Knowledge', Encyclopedia of Diderot & d'Alembert Collaborative Translation Project, University of Michigan"] },
+        { id: "k2", t: "The Encyclopédie as a Weapon", k: "The alternative to martyrdom: build the reference work everyone needs, and put the argument inside it.",
+          who: ["Denis Diderot", "Jean le Rond d'Alembert", "Voltaire", "Louis de Jaucourt"],
+          core: [
+            "28 volumes (17 of text, 11 of plates), 1751–1772, roughly 72,000 articles. It was the largest knowledge project of its century and a commercial success.",
+            "Its subversion was structural. Theology was filed under Reason, which implied that philosophy judges religion. Cross-references (renvois) carried the arguments the censors would have cut; a famous example points the article on cannibals to the articles on the Eucharist.",
+            "The cost was real. Diderot was jailed at Vincennes in 1749 for an earlier book. The project's royal privilege was revoked and the Pope condemned it in 1759. D'Alembert quit. Diderot kept going underground for years and finished it.",
+            "Then his own publisher secretly cut passages from the final volumes. Even a finished work needs control of its distribution.",
+            "Its legacy is not one martyr. It is a generation that learned to classify, cross-reference, and question, and the Revolution that followed."
+          ],
+          f: "Influence ≈ Reach × Durability × Cross-links",
+          fm: "Diderot maximized all three: a reference everyone needed, 21 years of persistence, and links that turned a dictionary into an argument.",
+          use: "This is the answer to the martyr question. Publish a body of work, keep it public on infrastructure you control (GitHub, the site), cross-link every paper to the models, and keep going. A cross-linked corpus outlives a dramatic exit.",
+          src: ["Robert Darnton, The Business of Enlightenment (1979)", "Philipp Blom, Enlightening the World: Encyclopédie (2004)", "Dan Edelstein, The Enlightenment: A Genealogy (2010)"] },
+        { id: "k3", t: "The Hermetic Tradition", k: "'As above, so below.' A beautiful idea, and a lesson in dating your sources.",
+          who: ["Hermes Trismegistus (attributed)", "Marsilio Ficino", "Isaac Casaubon", "Isaac Newton", "John Maynard Keynes", "Frances Yates"],
+          core: [
+            "The Corpus Hermeticum is a set of Greek religious-philosophical texts attributed to 'Hermes Trismegistus'. The Emerald Tablet, source of 'as above, so below', survives first in Arabic.",
+            "Cosimo de' Medici had Marsilio Ficino translate the Hermetica (finished 1463, printed 1471) before Plato, believing it older than Moses. It shaped Renaissance magic, art and science.",
+            "In 1614 Isaac Casaubon showed from the Greek itself that the texts were written in the Christian era, not ancient Egypt. Philology beat prestige. That is the strongest kind of critique: date the source.",
+            "Newton wrote over a million words on alchemy and theology. Keynes bought many of those papers in 1936 and concluded: 'Newton was not the first of the age of reason. He was the last of the magicians.'",
+            "Frances Yates (1964) argued the Hermetic tradition helped motivate the Scientific Revolution. Historians still debate how much."
+          ],
+          f: "Below (agent rules) ⇒ Above (aggregate patterns)",
+          fm: "The useful modern reading of 'as above, so below' is emergence: simple local rules produce large-scale order.",
+          use: "That's exactly what the Market Mind and the Evolutionary Economy do: trader and firm rules (below) generate the cycle (above). The paper skill here is Casaubon's: date and trace every source before you rely on it.",
+          link: ["market.html", "See emergence in the Market Mind"],
+          src: ["Brian Copenhaver, trans., Hermetica (1992)", "Frances Yates, Giordano Bruno and the Hermetic Tradition (1964)", "J. M. Keynes, 'Newton, the Man' (1946)", "Anthony Grafton, Defenders of the Text (1991), on Casaubon"] },
+        { id: "k4", t: "The Great Work", k: "Blackening, whitening, reddening: the oldest story of transformation, and a map of the business cycle.",
+          who: ["Paracelsus", "George Ripley", "Carl Jung", "Lawrence Principe", "Carlota Perez"],
+          core: [
+            "The alchemical opus moves through color stages: nigredo (black: decay, putrefaction), albedo (white: purification), citrinitas (yellow: dawn, often dropped later), rubedo (red: union, completion).",
+            "The operations were never standardized. Ripley's Compound of Alchemy (1471) lists twelve 'gates'; modern infographics usually list seven. The image you sent gives two different orders on one page, so read any summary critically.",
+            "Paracelsus's tria prima: sulphur (soul), mercury (spirit), salt (body). The image's anima, spiritus, corpus triangle is this idea.",
+            "Jung (Psychology and Alchemy, 1944) read the stages as individuation: the psyche has to dissolve its false self before it can integrate. Principe and Newman later showed much alchemy was real laboratory chemistry, not only allegory.",
+            "As a metaphor for capitalism it fits closely. Nigredo is the crash (Minsky moment, creative destruction). Albedo is the cleansing (defaults, write-downs, deleveraging). Citrinitas is the turning point (Perez). Rubedo is the deployment golden age."
+          ],
+          f: "Nigredo → Albedo → Citrinitas → Rubedo ≈ Crash → Cleansing → Turning point → Golden age",
+          fm: "A metaphor, not a mechanism. The mechanism lives in chapters e4 (Minsky) and e7 (Perez); the stages are the language.",
+          use: "Brand and essay language: 'The Great Work of Capital' is a ready title for an essay on the cycle. In the models, the Market Mind's regime chain (Crisis → Recovery → Expansion → Euphoria) is the opus in numbers.",
+          link: ["market.html", "See the regime chain"],
+          src: ["C. G. Jung, Psychology and Alchemy (1944)", "Lawrence Principe, The Secrets of Alchemy (2013)", "William Newman & Lawrence Principe, Alchemy Tried in the Fire (2002)", "George Ripley, The Compound of Alchemy (1471)"] },
+        { id: "k5", t: "Documented Power vs. Conspiracy Theory", k: "Real conspiracies have paper trails, names, and dates. They also get found out.",
+          who: ["Richard Hofstadter", "Karl Popper", "Church Committee (1975)", "David Robert Grimes"],
+          core: [
+            "Documented cases, all proven by records, hearings or courts: MKUltra (CIA mind-control experiments, 1953–73), COINTELPRO (FBI surveillance and disruption, 1956–71), the Tuskegee syphilis study (1932–72), Operation Northwoods (a 1962 false-flag proposal, rejected and declassified in 1997), Iran–Contra (1985–87), Operation Paperclip (Nazi scientists recruited, 1945–59).",
+            "Fabricated cases: the Protocols of the Elders of Zion is a forgery, exposed by The Times in 1921 as plagiarized from Maurice Joly's 1864 satire of Napoleon III. It is the root of the 'secret Jewish control' maps, including the Rothschild and 'Khazarian' nodes. Pizzagate (2016) was false. Alex Jones's Sandy Hook 'hoax' claims cost him over $1 billion in defamation judgments.",
+            "Hofstadter's 'paranoid style' (1964): history as one master plot run by one hidden enemy, where every gap in evidence counts as proof of a cover-up.",
+            "Grimes (2016) modeled how fast secrets leak. Plots needing thousands of insiders would almost certainly be exposed within a few years, and the documented ones were exposed that way.",
+            "Popper: a theory that explains everything, including the evidence against it, explains nothing."
+          ],
+          f: "P(exposed by t) ≈ 1 − e<sup>−t·[1 − (1 − p)<sup>N</sup>]</sup>",
+          fm: "Grimes's leak model: N insiders, each with a small yearly chance p of exposure. Large N makes long secrecy close to impossible.",
+          use: "The 'Follow the White Rabbit' map mixes documented history with forgeries and slanders and wires them into one plot. The documented items are real paper material. The wiring is not, and citing it would end the credibility of every paper you publish. Work only from primary records.",
+          src: ["Richard Hofstadter, 'The Paranoid Style in American Politics', Harper's (1964)", "US Senate Select Committee (Church Committee), Final Report (1976)", "D. R. Grimes, 'On the Viability of Conspiratorial Beliefs', PLOS ONE (2016)", "Norman Cohn, Warrant for Genocide (1967)", "Karl Popper, The Open Society and Its Enemies (1945)"] },
+        { id: "k6", t: "Falsifiability & Bayesian Updating", k: "Say in advance what would prove you wrong. Then update by exactly the right amount.",
+          who: ["Karl Popper", "Thomas Bayes", "Philip Tetlock", "Glenn Brier"],
+          core: [
+            "Popper (1934): a claim is scientific only if some observation could refute it. Marxist history and astrology failed this test because they could absorb any outcome.",
+            "Bayes (1763, published posthumously by Richard Price): belief after evidence = prior × how likely the evidence is if you're right, normalized.",
+            "Tetlock (2005): across thousands of forecasts, experts barely beat chance. 'Foxes' who knew many small things and updated often beat 'hedgehogs' with one big idea.",
+            "Superforecasters (2015) are calibrated: when they say 70%, it happens about 70% of the time. The Brier score measures this.",
+            "Multiple theses (your own rule) is the fox strategy written down."
+          ],
+          f: "P(H | E) = P(E | H) · P(H) / P(E),&nbsp;&nbsp; Brier = (1/N) Σ (f<sub>i</sub> − o<sub>i</sub>)²",
+          fm: "Bayes updates belief on evidence. Brier scores forecasts: 0 is perfect, 0.25 is a coin flip.",
+          use: "Every Eudaimon paper ends with explicit falsifiers. The public call ledger records a probability with each call and is scored by Brier, not by the best story.",
+          src: ["Karl Popper, The Logic of Scientific Discovery (1934/1959)", "Thomas Bayes, 'An Essay towards Solving a Problem in the Doctrine of Chances' (1763)", "Philip Tetlock, Expert Political Judgment (2005)", "Philip Tetlock & Dan Gardner, Superforecasting (2015)"] },
+        { id: "k7", t: "Apophenia: Seeing Patterns That Aren't There", k: "Your mind is a pattern engine with no off switch. So is every backtest.",
+          who: ["Klaus Conrad", "Michael Shermer", "Thomas Gilovich", "Joshua Miller & Adam Sanjurjo", "Campbell Harvey"],
+          core: [
+            "Apophenia (Conrad, 1958): perceiving meaningful connections between unrelated things. A wall covered in strings and arrows is its picture.",
+            "Patternicity (Shermer): false positives were cheap for our ancestors (a rustle that wasn't a lion) and false negatives were fatal, so evolution favored over-detection.",
+            "The hot hand: Gilovich, Vallone & Tversky (1985) called it an illusion. Miller & Sanjurjo (2018) found a subtle bias in that analysis, and the corrected data show a small real effect. Even debunkers need debunking.",
+            "Data snooping: test enough strategies and some will look brilliant by chance. Harvey, Liu & Zhu (2016) argue a new return factor needs t > 3, not t > 2.",
+            "The Texas sharpshooter: fire at the barn, then paint the target around the holes."
+          ],
+          f: "P(≥ 1 false positive) = 1 − (1 − α)<sup>m</sup>",
+          fm: "Run m tests at significance α and false discoveries pile up. 20 tests at 5% gives a 64% chance of at least one fluke.",
+          use: "That's why the Market Mind shows archetype purity next to a chance baseline. Any trading pattern in a paper must survive out-of-sample tests and a multiple-testing correction.",
+          link: ["market.html", "See purity vs. chance"],
+          src: ["Klaus Conrad, Die beginnende Schizophrenie (1958)", "Gilovich, Vallone & Tversky, 'The Hot Hand in Basketball', Cognitive Psychology (1985)", "Miller & Sanjurjo, 'Surprised by the Hot Hand Fallacy?', Econometrica (2018)", "Harvey, Liu & Zhu, '…and the Cross-Section of Expected Returns', RFS (2016)"] },
+        { id: "k8", t: "Writing Papers That Survive", k: "A paper is a claim, the evidence for it, and an invitation to prove it wrong.",
+          who: ["SSRN", "arXiv (q-fin, econ)", "RePEc / IDEAS", "Open Science Framework"],
+          core: [
+            "Structure: title, abstract (about 150 words: question, method, finding), introduction (why it matters, what's new), literature, model or data, results, robustness, falsifiers and limitations, references.",
+            "Venues: SSRN for economics and finance working papers (open to anyone), arXiv's q-fin and econ sections (first submissions need an endorsement), RePEc/IDEAS indexing, and OSF or SocArXiv for social science.",
+            "Replication: post code and data. The Eudaimon models are already public on GitHub, which most young researchers can't say.",
+            "Cite primary sources. Read the original, not the infographic about it, as k4 shows.",
+            "Use a working-paper series name and numbering (for example 'Eudaimon Working Paper 2026-01') so the body of work reads as an institution."
+          ],
+          f: "Paper = Question + Evidence + Method + Falsifier",
+          fm: "Missing any one: no question is trivia, no evidence is opinion, no method is a story, no falsifier is faith.",
+          use: "The pipeline: (1) The Bottleneck Republic, ownership and the r > g problem, using the Evolutionary Economy; (2) a reflexive market that models itself, using the Market Mind; (3) a crypto dealer-gamma study testing whether price respects the flip, using the Terminal's daily snapshots.",
+          src: ["SSRN (ssrn.com)", "arXiv submission guide (arxiv.org/help)", "Deirdre McCloskey, Economical Writing (1985/2019)", "John Cochrane, 'Writing Tips for Ph.D. Students' (2005)"] }
       ] }
+  ],
+  // The Encyclopédie's Figurative System of Human Knowledge (1751), with Codex chapters filed to their branches.
+  // node: [name, [chapter ids], [children]]; a branch with no chapters anywhere below it is open territory.
+  tree: [
+    ["Memory · History", [], [
+      ["Sacred & ecclesiastical history", ["k3"], []],
+      ["Civil history, ancient & modern", ["p1", "p8"], []],
+      ["Literary history", ["k1", "k2"], []],
+      ["Natural history", [], [
+        ["Uniformity & deviations of nature", [], []],
+        ["Uses of nature: arts, crafts, manufactures", ["e7", "m8"], []]
+      ]]
+    ]],
+    ["Reason · Philosophy", [], [
+      ["General metaphysics (ontology)", [], []],
+      ["Science of God", [], [
+        ["Natural & revealed theology", ["k3"], []],
+        ["Good & evil spirits: divination, magic", [], []]
+      ]],
+      ["Science of Man", [], [
+        ["Logic: the art of thinking", ["k6", "k7"], []],
+        ["Logic: the art of communicating", ["k8", "p7"], []],
+        ["Ethics, general: good, evil, virtue", [], []],
+        ["Ethics, particular: jurisprudence", [], [
+          ["Economic", ["e1", "e2", "e3", "e4", "e5", "e6", "e8"], []],
+          ["Political", ["p2", "p3", "p4", "p5", "p6"], []],
+          ["Commerce, internal & external", ["m1", "m2", "m3", "m4", "m5", "m6", "m7"], []]
+        ]]
+      ]],
+      ["Science of Nature", [], [
+        ["Pure mathematics: arithmetic, algebra, geometry", [], []],
+        ["Mixed mathematics: art of conjecture, analysis of chance", ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8"], []],
+        ["Particular physics: chemistry, metallurgy, alchemy", ["k4"], []],
+        ["Particular physics: zoology, medicine, cosmology", [], []]
+      ]]
+    ]],
+    ["Imagination · Poetry", [], [
+      ["Narrative: epic, novel", [], []],
+      ["Dramatic: tragedy, comedy", [], []],
+      ["Parable & allegory", ["k4"], []],
+      ["Music, painting, sculpture, architecture", [], []]
+    ]]
   ],
   // [name, year, volume, idea, chapter]
   thinkers: [
+    ["Ficino", 1471, "k", "Translates the Corpus Hermeticum", "k3"],
+    ["Ripley", 1471, "k", "The Twelve Gates of alchemy", "k4"],
+    ["Paracelsus", 1536, "k", "Tria prima: sulphur, mercury, salt", "k4"],
+    ["Bacon", 1605, "k", "Memory, reason, imagination", "k1"],
+    ["Casaubon", 1614, "k", "Dates the Hermetica", "k3"],
+    ["Diderot & d'Alembert", 1751, "k", "The Encyclopédie", "k2"],
+    ["Bayes", 1763, "k", "Inverse probability", "k6"],
+    ["Popper", 1934, "k", "Falsifiability", "k6"],
+    ["Jung", 1944, "k", "Psychology and Alchemy", "k4"],
+    ["Keynes on Newton", 1946, "k", "The last of the magicians", "k3"],
+    ["Conrad", 1958, "k", "Apophenia", "k7"],
+    ["Hofstadter", 1964, "k", "The Paranoid Style", "k5"],
+    ["Church Committee", 1975, "k", "Intelligence abuses documented", "k5"],
+    ["Tetlock", 2005, "k", "Expert Political Judgment", "k6"],
+    ["Grimes", 2016, "k", "Secrets leak", "k5"],
+    ["Harvey, Liu & Zhu", 2016, "k", "t > 3 for new factors", "k7"],
+    ["Miller & Sanjurjo", 2018, "k", "The hot hand revisited", "k7"],
     ["Machiavelli", 1532, "p", "The Prince: judge power by results", "p1"],
     ["Hobbes", 1651, "p", "Leviathan: order before liberty", "p1"],
     ["Locke", 1689, "p", "Government held in trust", "p1"],

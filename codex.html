@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Eudaimon Codex</title>
-<meta name="description" content="The Eudaimon Codex: economics, politics, trading and markets in four volumes, with the thinkers, the equations, and how each idea is used. Built by Eudaimon Capitol.">
+<meta name="description" content="The Eudaimon Codex: economics, politics, trading, markets and method in five volumes, with the thinkers, the equations, and how each idea is used. Built by Eudaimon Capitol.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -29,7 +29,8 @@
     grid-template-areas:
       "title title title title title title title e e e e e"
       "title title title title title title title p p p q q"
-      "t t t t live live live live m m m m"; }
+      "t t t t live live live live m m m m"
+      "k k k k k k tree tree tree tree tree tree"; }
   .collage > * { min-width:0; }
   .tile { position:relative; overflow:hidden; border:1px solid var(--line); border-radius:14px; background:var(--panel); padding:18px; }
   .tile svg.art { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
@@ -47,7 +48,10 @@
   .vol p { margin:0; color:var(--muted); font-size:13.5px; max-width:430px; }
   .vol .go { margin-top:auto; padding-top:10px; font-size:12px; color:var(--text); }
   .vol .go span { color:var(--muted); }
-  .t-e { grid-area:e; --vc:var(--e); } .t-p { grid-area:p; --vc:var(--p); } .t-t { grid-area:t; --vc:var(--t); } .t-m { grid-area:m; --vc:var(--m); }
+  .t-e { grid-area:e; --vc:var(--e); } .t-p { grid-area:p; --vc:var(--p); } .t-t { grid-area:t; --vc:var(--t); } .t-m { grid-area:m; --vc:var(--m); } .t-k { grid-area:k; --vc:#9085e9; }
+  .t-tree { grid-area:tree; cursor:pointer; text-decoration:none; background:radial-gradient(120% 120% at 100% 0%, #1d1a26 0%, var(--panel) 60%); }
+  .t-tree:hover { border-color:#9085e9; }
+  .t-tree h2 { font-family:var(--serif); font-weight:600; font-size:24px; margin:6px 0 6px; } .t-tree p { margin:0; color:var(--muted); font-size:13.5px; max-width:360px; }
   .t-q { grid-area:q; background:var(--gold); color:#14110a; border-color:var(--gold); }
   .t-q blockquote { margin:0; font-family:var(--serif); font-size:clamp(19px,1.8vw,24px); line-height:1.15; font-weight:600; }
   .t-q cite { margin-top:auto; font-style:normal; font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; }
@@ -59,10 +63,10 @@
   .live-foot { margin-top:auto; padding-top:10px; font-size:11px; color:var(--faint); }
   .live-foot a { color:var(--gold); }
   @media (max-width:900px) {
-    .collage { grid-template-columns:repeat(2,1fr); grid-template-areas: "title title" "e e" "p q" "t t" "m m" "live live"; }
+    .collage { grid-template-columns:repeat(2,1fr); grid-template-areas: "title title" "e e" "p q" "t t" "m m" "k k" "tree tree" "live live"; }
   }
   @media (max-width:560px) {
-    .collage { grid-template-columns:1fr; grid-template-areas: "title" "e" "p" "q" "t" "m" "live"; }
+    .collage { grid-template-columns:1fr; grid-template-areas: "title" "e" "p" "q" "t" "m" "k" "tree" "live"; }
     .t-title { padding:22px; }
   }
 
@@ -84,6 +88,24 @@
   .sq { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:-1px; }
   .tip { position:absolute; pointer-events:none; background:#0e0e10; border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:12px; line-height:1.45; display:none; z-index:20; max-width:240px; box-shadow:0 8px 24px rgba(0,0,0,.55); }
   .tip b { font-weight:600; } .tip .h { color:var(--muted); }
+
+  /* tree of knowledge */
+  .tree3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+  @media (max-width:900px){ .tree3 { grid-template-columns:1fr; } }
+  .tcol { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 14px; }
+  .tcol > .tn { font-family:var(--serif); font-size:20px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; text-align:center; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:6px; }
+  .tb { margin-left:12px; border-left:1px solid #3a3a40; padding-left:12px; }
+  .tnode { padding:6px 0 2px; }
+  .tnode .nm { font-family:var(--serif); font-size:14.5px; font-variant:small-caps; letter-spacing:.03em; color:var(--text); }
+  .tnode.open .nm { color:var(--faint); font-style:italic; }
+  .tnode.open .nm::after { content:"  · open territory"; font-family:var(--sans); font-variant:normal; font-style:normal; font-size:11px; color:#9085e9; letter-spacing:0; }
+  .chips { display:flex; flex-wrap:wrap; gap:5px; margin-top:5px; }
+  .cchip { font:600 11.5px var(--sans); background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:999px; padding:3px 9px 3px 7px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+  .cchip:hover, .cchip:focus-visible { border-color:var(--vc); outline:none; }
+  .cchip i { width:8px; height:8px; border-radius:50%; background:var(--vc); display:inline-block; }
+  .tree-note { color:var(--muted); font-size:12.5px; margin-top:10px; }
+  .srcs { margin-top:14px; font-size:13px; color:var(--muted); } .srcs .h { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--text); font-weight:700; margin-bottom:4px; }
+  .srcs ul { margin:0; padding-left:18px; }
 
   /* formula wall */
   .wall { columns:4 250px; column-gap:10px; }
@@ -157,8 +179,8 @@
   <div class="collage" id="collage">
     <div class="tile t-title"><div class="in">
       <div class="eyebrow">Eudaimon Capitol · The Codex · <span id="ver"></span></div>
-      <h1>Four disciplines.<br><em>One machine</em> for seeing where value pools.</h1>
-      <p>Economics says what is scarce. Politics says who writes the rules around it. Markets show what the crowd believes. Trading is how you get paid for being right before they are. This is the operating manual: the thinkers, the equations, and how each idea gets used.</p>
+      <h1>Five disciplines.<br><em>One machine</em> for seeing where value pools.</h1>
+      <p>Economics says what is scarce. Politics says who writes the rules around it. Markets show what the crowd believes. Trading is how you get paid for being right before they are. Method is how you know you were right. This is the operating manual: the thinkers, the equations, and how each idea gets used.</p>
       <div class="counts" id="counts"></div>
     </div></div>
     <div class="tile t-q"><div class="in">
@@ -170,16 +192,27 @@
       <div class="live-grid" id="live"><div class="stat"><div class="l">Loading real data…</div></div></div>
       <div class="live-foot" id="livefoot">FRED · refreshed weekly · <a href="reality.html">open the board →</a></div>
     </div></div>
+    <a class="tile t-tree" href="#tree"><svg class="art" id="treeart" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg><div class="in">
+      <div class="eyebrow">Diderot &amp; d'Alembert · 1751</div><h2>The Tree of Knowledge</h2>
+      <p>Bacon's map of the mind, drawn for the Encyclopédie. Every Codex chapter is filed to its branch, and the empty branches are where the next papers go.</p>
+      <div class="go" style="margin-top:auto;padding-top:10px;font-size:12px">Open the tree <span style="color:var(--muted)">→</span></div></div></a>
   </div>
 
   <!-- ===== TIMELINE ===== -->
   <section id="lineage">
-    <div class="sh"><h2>Five centuries of ideas</h2><p>Every dot is a thinker, placed by the year of their key work. Hover to read, click to open the chapter. Each lane is a volume.</p></div>
+    <div class="sh"><h2>Six centuries of ideas</h2><p>Every dot is a thinker or institution, placed by the year of their key work. Hover to read, click to open the chapter. Each lane is a volume.</p></div>
     <div class="tl-box" id="tlbox">
       <div class="legend" id="tllegend"></div>
-      <div class="tl-scroll"><svg id="tl" viewBox="0 0 1200 330" role="img" aria-label="Timeline of thinkers from 1532 to 2019 across economics, politics, trading and markets"></svg></div>
+      <div class="tl-scroll"><svg id="tl" viewBox="0 0 1200 400" role="img" aria-label="Timeline of thinkers from 1471 to 2019 across economics, politics, trading, markets and method"></svg></div>
       <div class="tip" id="tip"></div>
     </div>
+  </section>
+
+  <!-- ===== TREE OF KNOWLEDGE ===== -->
+  <section id="tree">
+    <div class="sh"><h2>The Tree of Knowledge</h2><p>The Encyclopédie's Figurative System of Human Knowledge (1751), after Bacon. Codex chapters are filed to their branches; click a chip to read it. Branches marked open territory are where the next papers go.</p></div>
+    <div class="tree3" id="tree3"></div>
+    <p class="tree-note">Source: Diderot &amp; d'Alembert, Encyclopédie (1751), Figurative System of Human Knowledge; English translation by Benjamin Heller, University of Michigan Encyclopedia of Diderot &amp; d'Alembert Collaborative Translation Project. Simplified here; the full tree has well over a hundred branches.</p>
   </section>
 
   <!-- ===== FORMULA WALL ===== -->
@@ -190,18 +223,19 @@
 
   <!-- ===== LIBRARY ===== -->
   <section id="library">
-    <div class="sh"><h2>The library</h2><p>Four volumes, eight chapters each. Every chapter ends with how Angelo uses it.</p></div>
+    <div class="sh"><h2>The library</h2><p>Five volumes, eight chapters each. Every chapter ends with how Angelo uses it.</p></div>
     <div class="filters" id="filters" role="toolbar" aria-label="Filter chapters"></div>
     <div id="vols"></div>
   </section>
 
   <!-- ===== CONNECTS ===== -->
   <section id="connect">
-    <div class="sh"><h2>Where the Codex runs</h2><p>The ideas aren't only written here. They run as code in four live models on this site.</p></div>
+    <div class="sh"><h2>Where the Codex runs</h2><p>The ideas aren't only written here. They run as code in five live models on this site.</p></div>
     <div class="links">
       <a class="lk" href="index.html"><b>The Evolutionary Economy</b><span>Schumpeter, Nelson &amp; Winter, Wright's law, Geels, Frey–Schneider, Piketty. Three economies, same luck, different owners.</span><i>Chapters e6 · e7 · p3 · p5 →</i></a>
       <a class="lk" href="market.html"><b>The Market Mind</b><span>200 evolving traders with habits and shadow habits. A Mind that weighs eight theories against each other by regime.</span><i>Chapters e4 · t6 · t8 · m1 · m2 · m4 →</i></a>
       <a class="lk" href="lineage.html"><b>The Lineage</b><span>The family tree of evolutionary economics, from Veblen to Eudaimon, with the missing ancestors added.</span><i>Chapters e1 · e7 →</i></a>
+      <a class="lk" href="terminal.html"><b>The Dealer Terminal</b><span>Live BTC and ETH dealer gamma from Deribit: flip, walls, GEX ladder, smile, plus an hourly news tape.</span><i>Chapters t3 · t4 · t5 →</i></a>
       <a class="lk" href="reality.html"><b>The Reality Board</b><span>Real US and Texas data as a GEX-style pressure board, plus the political GEX and peer-country triad.</span><i>Chapters e5 · p7 · t5 · m5 →</i></a>
     </div>
   </section>
@@ -228,7 +262,7 @@
 
   $("#ver").textContent = C.version;
   const nCh = order.length, nTh = C.thinkers.length;
-  $("#counts").innerHTML = [[V.length,"volumes"],[nCh,"chapters"],[nTh,"thinkers"],[nCh,"equations"],[4,"live models"]]
+  $("#counts").innerHTML = [[V.length,"volumes"],[nCh,"chapters"],[nTh,"thinkers"],[nCh,"equations"],[5,"live models"]]
     .map(([n,l]) => `<div><b>${n}</b>${l}</div>`).join("");
 
   /* ---------- volume tiles with generative art ---------- */
@@ -263,6 +297,13 @@
       [[230, 1], [260, .55], [290, .3]].forEach(([k, op]) => o.push(`<polyline points="120,165 ${k},165 400,${165 - (400 - k) * 0.95}" fill="none" stroke="${c}" stroke-width="2.5" opacity="${op}"/>`));
       const g = []; for (let x = 120; x <= 400; x += 5) g.push(`${x},${190 - 70 * Math.exp(-((x - 260) ** 2) / 1800)}`);
       o.push(`<polyline points="${g.join(" ")}" fill="none" stroke="${c}" stroke-width="1.5" stroke-dasharray="4 4" opacity=".7"/>`);
+    } else if (id === "k") { // the squared circle: circle, triangle, square, circle (after Maier's emblem XXI)
+      const cx = 300, cy = 100;
+      o.push(`<circle cx="${cx}" cy="${cy}" r="88" fill="none" stroke="${c}" stroke-width="1.5" opacity=".55"/>`);
+      o.push(`<polygon points="${cx},${cy-88} ${cx+76.2},${cy+44} ${cx-76.2},${cy+44}" fill="none" stroke="${c}" stroke-width="1.5" opacity=".7"/>`);
+      o.push(`<rect x="${cx-31}" y="${cy-18}" width="62" height="62" fill="none" stroke="${c}" stroke-width="1.5" opacity=".85"/>`);
+      o.push(`<circle cx="${cx}" cy="${cy+13}" r="22" fill="${c}" opacity=".35"/>`);
+      for (let k = 0; k < 24; k++) { const a = k / 24 * Math.PI * 2; o.push(`<line x1="${cx + Math.cos(a)*92}" y1="${cy + Math.sin(a)*92}" x2="${cx + Math.cos(a)*100}" y2="${cy + Math.sin(a)*100}" stroke="${c}" opacity=".5"/>`); }
     } else { // candlesticks from a seeded walk
       let p = 120;
       for (let k = 0; k < 26; k++) {
@@ -275,6 +316,22 @@
     return fade + o.join("") + `<rect width="400" height="200" fill="url(#fd${id})"/>`;
   }
 
+  /* ---------- tree of knowledge ---------- */
+  (function(){
+    const r = rng(1751), lines = [];
+    (function br(x, y, a, len, d){ if (d > 6) return; const x2 = x + Math.cos(a) * len, y2 = y + Math.sin(a) * len;
+      lines.push(`<line x1="${x}" y1="${y}" x2="${x2}" y2="${y2}" stroke="#9085e9" stroke-width="${Math.max(0.6, 3 - d * 0.45)}" opacity="${0.85 - d * 0.09}"/>`);
+      br(x2, y2, a - 0.42 - r() * 0.25, len * 0.74, d + 1); br(x2, y2, a + 0.42 + r() * 0.25, len * 0.74, d + 1); })(310, 200, -Math.PI / 2, 52, 0);
+    $("#treeart").innerHTML = lines.join("") + `<defs><linearGradient id="fdtree" x1="0" x2="1"><stop offset="0" stop-color="#141416" stop-opacity=".97"/><stop offset=".5" stop-color="#141416" stop-opacity=".5"/><stop offset="1" stop-color="#141416" stop-opacity="0"/></linearGradient></defs><rect width="400" height="200" fill="url(#fdtree)"/>`;
+    const has = n => n[1].length > 0 || n[2].some(has);
+    const node = n => {
+      const chips = n[1].map(id => { const ch = byId[id]; return ch ? `<button class="cchip" data-id="${id}" style="--vc:${ch.vol.color}" title="${esc(ch.t)}"><i></i>${ch.vol.roman}.${ch.n} ${esc(ch.t)}</button>` : ""; }).join("");
+      return `<div class="tnode${has(n) ? "" : " open"}"><div class="nm">${esc(n[0])}</div>${chips ? `<div class="chips">${chips}</div>` : ""}${n[2].length ? `<div class="tb">${n[2].map(node).join("")}</div>` : ""}</div>`;
+    };
+    $("#tree3").innerHTML = (C.tree || []).map(col => `<div class="tcol"><div class="tn">${esc(col[0])}</div><div class="tb" style="margin-left:0;border-left:0;padding-left:0">${col[2].map(node).join("")}</div></div>`).join("");
+    $("#tree3").addEventListener("click", e => { const b = e.target.closest(".cchip"); if (b) open(b.dataset.id); });
+  })();
+
   /* ---------- live tile ---------- */
   fetch("data/reality.json").then(r => r.json()).then(d => {
     const F = d.fred || {}, last = id => { const s = F[id] && F[id].obs; return s && s.length ? s[s.length - 1] : null; };
@@ -285,13 +342,13 @@
 
   /* ---------- timeline ---------- */
   (function(){
-    const svg = $("#tl"), W = 1200, L = 110, R = 1180, lanes = ["e","p","t","m"], laneH = 68, top = 34;
-    const X = y => y < 1900 ? L + (y - 1500) / 400 * (R - L) * 0.28 : L + (R - L) * 0.28 + (y - 1900) / 125 * (R - L) * 0.72;
+    const svg = $("#tl"), W = 1200, L = 110, R = 1180, lanes = ["e","p","t","m","k"], laneH = 68, top = 34;
+    const X = y => y < 1900 ? L + (y - 1450) / 450 * (R - L) * 0.3 : L + (R - L) * 0.3 + (y - 1900) / 125 * (R - L) * 0.7;
     const vmap = Object.fromEntries(V.map(v => [v.id, v]));
     $("#tllegend").innerHTML = V.map(v => `<span><span class="sq" style="background:${v.color}"></span>${v.name}</span>`).join("") + `<span style="margin-left:auto;color:var(--faint)">Scale compresses before 1900</span>`;
     const parts = [];
-    [[1500,1776,"Statecraft"],[1776,1870,"Classical"],[1870,1936,"Marginal & monetary"],[1936,1970,"Keynes & games"],[1970,2000,"Modern finance"],[2000,2025,"Complexity"]].forEach(([a,b,n],i) => {
-      parts.push(`<rect x="${X(a)}" y="${top - 8}" width="${X(b) - X(a)}" height="${laneH * 4 + 8}" fill="${i % 2 ? "#18181a" : "#141416"}"/>`);
+    [[1450,1600,"Renaissance"],[1600,1776,"Scientific revolution"],[1776,1870,"Classical"],[1870,1936,"Marginal & monetary"],[1936,1970,"Keynes & games"],[1970,2000,"Modern finance"],[2000,2025,"Complexity"]].forEach(([a,b,n],i) => {
+      parts.push(`<rect x="${X(a)}" y="${top - 8}" width="${X(b) - X(a)}" height="${laneH * lanes.length + 8}" fill="${i % 2 ? "#18181a" : "#141416"}"/>`);
       parts.push(`<text x="${(X(a) + X(b)) / 2}" y="${top - 14}" fill="#6d6a64" font-size="11" text-anchor="middle">${n}</text>`);
     });
     lanes.forEach((id, i) => {
@@ -299,7 +356,7 @@
       parts.push(`<line x1="${L}" y1="${y}" x2="${R}" y2="${y}" stroke="#26262a"/>`);
       parts.push(`<text x="${L - 12}" y="${y + 4}" fill="#ecebe7" font-size="13" font-weight="600" text-anchor="end">${vmap[id].name}</text>`);
     });
-    [1500,1600,1700,1800,1900,1925,1950,1975,2000,2025].forEach(y => parts.push(`<text x="${X(y)}" y="${top + laneH * 4 + 18}" fill="#6d6a64" font-size="11" text-anchor="middle">${y}</text>`));
+    [1450,1600,1700,1800,1900,1925,1950,1975,2000,2025].forEach(y => parts.push(`<text x="${X(y)}" y="${top + laneH * lanes.length + 18}" fill="#6d6a64" font-size="11" text-anchor="middle">${y}</text>`));
     svg.innerHTML = parts.join("");
     const tiers = {}; lanes.forEach(id => tiers[id] = [-1e9, -1e9]);
     C.thinkers.forEach(([name, yr, vid, idea, ch], k) => {
@@ -368,6 +425,7 @@
       <ol>${ch.core.map(c => `<li>${esc(c)}</li>`).join("")}</ol>
       <div class="eqbox"><div class="eq">${ch.f}</div><p>${esc(ch.fm)}</p></div>
       <div class="use"><div class="h">How Angelo uses this</div>${esc(ch.use)}</div>
+      ${ch.src && ch.src.length ? `<div class="srcs"><div class="h">Primary sources</div><ul>${ch.src.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
       <div class="nav"><button class="btn" data-go="${prev.id}">← ${esc(prev.t)}</button>
         ${ch.link ? `<a class="btn gold" href="${ch.link[0]}">${esc(ch.link[1])} →</a>` : ""}
         <button class="btn" data-go="${next.id}">${esc(next.t)} →</button></div>`;
