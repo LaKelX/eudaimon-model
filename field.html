@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Field</title>
+<meta name="description" content="Test design 01: a plain field you climb from zero to four dimensions. Height is rent, capital flows uphill to bottlenecks, and time moves the peaks.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700&family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0b0b0c; --panel:rgba(18,18,20,.82); --line:#26262a; --text:#ecebe7; --muted:#9a978f; --faint:#6d6a64; --gold:#c9a75e;
+    --mono:"JetBrains Mono", ui-monospace, Menlo, monospace; --serif:"Fraunces", Georgia, serif; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--text); font:14px/1.5 Inter, -apple-system, BlinkMacSystemFont, sans-serif; overflow:hidden; }
+  #gl { position:fixed; inset:0; display:block; }
+  .hud { position:fixed; pointer-events:none; z-index:2; }
+  .hud > * { pointer-events:auto; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:12px; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+  nav.top { position:fixed; top:12px; left:16px; right:16px; z-index:3; display:flex; gap:14px; flex-wrap:wrap; font-size:12.5px; }
+  nav.top a { color:var(--muted); text-decoration:none; } nav.top a.on { color:var(--gold); }
+  #title { top:44px; left:16px; max-width:min(440px, calc(100% - 32px)); padding:14px 16px; }
+  .eyebrow { font:700 10.5px var(--mono); letter-spacing:.16em; color:var(--gold); }
+  h1 { font-family:var(--serif); font-weight:700; font-size:clamp(26px,3.4vw,38px); margin:4px 0 6px; line-height:1.02; }
+  #cap { margin:0; color:var(--muted); font-size:14px; min-height:42px; }
+  #cap b { color:var(--text); font-weight:600; }
+  #dims { bottom:16px; left:50%; transform:translateX(-50%); padding:8px; display:flex; gap:6px; align-items:center; }
+  #dims button { background:transparent; border:1px solid var(--line); color:var(--muted); font:700 13px var(--mono); border-radius:8px; padding:9px 14px; cursor:pointer; min-width:54px; }
+  #dims button[aria-pressed=true] { background:var(--gold); border-color:var(--gold); color:#14110a; }
+  #dims .sep { width:1px; align-self:stretch; background:var(--line); margin:0 4px; }
+  #side { top:44px; right:16px; width:280px; padding:14px 16px; }
+  #side h3 { margin:0 0 2px; font:700 11px var(--mono); letter-spacing:.14em; color:var(--muted); }
+  #year { font:700 22px var(--mono); }
+  .bars { margin:10px 0 12px; display:flex; flex-direction:column; gap:7px; }
+  .br .lab { display:flex; justify-content:space-between; font-size:12.5px; }
+  .br .lab span:last-child { font-family:var(--mono); color:var(--text); }
+  .br .trk { height:6px; background:#1d1d21; border-radius:3px; margin-top:3px; overflow:hidden; }
+  .br .fill { height:100%; border-radius:3px; transition:width .3s; }
+  .ctl { margin-top:8px; }
+  .ctl label { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); }
+  .ctl label b { color:var(--text); font-family:var(--mono); font-weight:600; }
+  input[type=range] { width:100%; accent-color:var(--gold); }
+  .row { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+  .row button { flex:1; background:transparent; border:1px solid var(--line); color:var(--text); font:600 12px var(--mono); border-radius:8px; padding:8px 8px; cursor:pointer; }
+  .row button.gold { background:var(--gold); color:#111; border-color:var(--gold); }
+  .tag { position:fixed; z-index:1; pointer-events:none; font:600 11px var(--mono); color:var(--text); white-space:nowrap; transform:translate(-50%,-100%); padding:2px 7px; border-radius:6px; background:rgba(11,11,12,.75); border:1px solid var(--line); display:flex; gap:6px; align-items:center; }
+  .tag i { width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .tag span { color:var(--muted); font-weight:400; }
+  #hint { bottom:76px; left:50%; transform:translateX(-50%); font:11px var(--mono); color:var(--faint); text-align:center; white-space:nowrap; }
+  #nogl { position:fixed; inset:0; display:none; place-items:center; color:var(--muted); padding:24px; text-align:center; }
+  @media (max-width:820px) {
+    nav.top { flex-wrap:nowrap; overflow-x:auto; white-space:nowrap; scrollbar-width:none; }
+    #title { top:40px; } #side .ctl { display:none; } #side .bars { margin:6px 0; gap:5px; }
+    #side { top:auto; bottom:76px; right:8px; left:8px; width:auto; padding:10px 12px; max-height:34vh; overflow:auto; }
+    #title { padding:10px 12px; } #cap { font-size:13px; min-height:0; }
+    #hint { display:none; }
+    #dims { left:8px; right:8px; transform:none; justify-content:center; bottom:10px; }
+    #dims button { padding:8px 8px; min-width:0; flex:1; }
+  }
+  @media (prefers-reduced-motion:reduce){ .br .fill { transition:none; } }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="nogl">WebGL isn't available in this browser, so the field can't render.</div>
+<nav class="top"><a href="index.html">The Evolutionary Economy</a><a href="market.html">The Market Mind</a><a href="lineage.html">The Lineage</a><a href="reality.html">Reality Board</a><a href="codex.html">The Codex</a><a href="terminal.html">Dealer Terminal</a><a href="field.html" class="on">The Field</a></nav>
+
+<div class="hud panel" id="title">
+  <div class="eyebrow">EUDAIMON · TEST DESIGN 01</div>
+  <h1>The Field</h1>
+  <p id="cap"></p>
+</div>
+
+<div class="hud panel" id="side">
+  <h3>CAPITAL CAPTURED BY BOTTLENECK</h3>
+  <div id="year">Year 0</div>
+  <div class="bars" id="bars"></div>
+  <div class="ctl"><label>Capital flow <b id="flowv">1.0</b></label><input id="flow" type="range" min="0" max="2" step="0.1" value="1"></div>
+  <div class="ctl"><label>Capacity arrival (how fast rents erode) <b id="capv">1.0</b></label><input id="capr" type="range" min="0" max="3" step="0.1" value="1"></div>
+  <div class="row"><button class="gold" id="shock">+ New bottleneck</button><button id="spin" aria-pressed="true">Orbit: on</button></div>
+</div>
+
+<div class="hud" id="hint">drag to orbit · scroll to zoom · right-drag to pan</div>
+<div class="hud panel" id="dims" role="toolbar" aria-label="Dimensions">
+  <button data-d="0">0D</button><button data-d="1">1D</button><button data-d="2">2D</button><button data-d="3">3D</button><button data-d="4">4D</button>
+  <span class="sep"></span><button id="tour" title="Climb from 0D to 4D">▶ Tour</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const CAPS = [
+    "<b>0D · A point.</b> Capital before there is a market. All of it in one place, going nowhere.",
+    "<b>1D · A line.</b> Price through time, the only dimension most traders ever see.",
+    "<b>2D · A plain field.</b> Every position in the economy laid flat. No ground is worth more than any other, so capital wanders.",
+    "<b>3D · Height is rent.</b> Scarcity raises the ground. Capital flows uphill and pools on the bottlenecks.",
+    "<b>4D · Time.</b> Capacity arrives, peaks erode and new ones rise. Own the constraint, and rotate before it flattens."
+  ];
+  // identity colors, fixed order (validated categorical palette); a color follows its bottleneck for life
+  const SLOTS = ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300"];
+  const NAMES = ["EUV lithography", "Uranium enrichment", "LNG export", ".com registry", "Grid transformers", "Antimony", "HBM memory", "Naval reactors", "Gas turbines", "Rare-earth magnets", "Copper smelting", "Helium", "Advanced packaging", "Subsea cable"];
+
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas: $("#gl"), antialias: true }); } catch (e) { $("#nogl").style.display = "grid"; return; }
+  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0b0b0c);
+  scene.fog = new THREE.FogExp2(0x0b0b0c, 0.0042);
+  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 2000);
+  camera.position.set(150, 120, 170);
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true; controls.dampingFactor = 0.08; controls.autoRotate = true; controls.autoRotateSpeed = 0.35;
+  controls.maxPolarAngle = Math.PI * 0.49; controls.minDistance = 40; controls.maxDistance = 520; controls.target.set(0, 10, 0);
+
+  // ---------- the field ----------
+  const N = 100, SIZE = 200, H = SIZE / 2;
+  const nv = N + 1, segs = 2 * nv * N;
+  const linePos = new Float32Array(segs * 2 * 3), lineCol = new Float32Array(segs * 2 * 3);
+  const lg = new THREE.BufferGeometry();
+  lg.setAttribute("position", new THREE.BufferAttribute(linePos, 3));
+  lg.setAttribute("color", new THREE.BufferAttribute(lineCol, 3));
+  const field = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.9 }));
+  scene.add(field);
+  const hgt = new Float32Array(nv * nv);
+  const low = new THREE.Color("#25252b"), mid = new THREE.Color("#6b5a34"), top = new THREE.Color("#f0d48a"), tmp = new THREE.Color();
+
+  // origin glow for 0D
+  const dotTex = (() => { const c = document.createElement("canvas"); c.width = c.height = 64; const x = c.getContext("2d"); const g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, "rgba(255,240,200,1)"); g.addColorStop(0.25, "rgba(201,167,94,.9)"); g.addColorStop(1, "rgba(201,167,94,0)"); x.fillStyle = g; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })();
+  const origin = new THREE.Sprite(new THREE.SpriteMaterial({ map: dotTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  origin.scale.set(26, 26, 1); scene.add(origin);
+
+  // ---------- bottlenecks (peaks) ----------
+  let peaks = [], nameIx = 0, year = 0;
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  function spawn(mature){
+    const used = new Set(peaks.map(p => p.col)), col = SLOTS.find(c => !used.has(c)); if (!col) return null;
+    let x = rnd(-70, 70), z = rnd(-70, 70);
+    for (let t = 0; t < 30 && peaks.some(q => Math.hypot(q.x - x, q.z - z) < 50); t++) { x = rnd(-75, 75); z = rnd(-75, 75); }
+    const p = { name: NAMES[nameIx++ % NAMES.length], col, x, z, vx: rnd(-1.2, 1.2), vz: rnd(-1.2, 1.2),
+      amax: rnd(28, 48), sig: rnd(11, 20), age: mature ? rnd(4, 14) : 0, tg: rnd(2.5, 5), dk: rnd(0.035, 0.07), A: 0, el: null };
+    p.el = document.createElement("div"); p.el.className = "tag"; p.el.innerHTML = `<i style="background:${col}"></i>${p.name} <span></span>`; document.body.appendChild(p.el);
+    peaks.push(p); return p;
+  }
+  for (let i = 0; i < 5; i++) spawn(true);
+  let capRate = 1, flow = 1;
+  function amp(p){ return p.amax * (1 - Math.exp(-p.age / p.tg)) * Math.exp(-p.dk * capRate * Math.max(0, p.age - p.tg)); }
+  peaks.forEach(p => p.A = amp(p));
+  function hAt(u, v){ let s = 0; for (const p of peaks) { const dx = u - p.x, dz = v - p.z; s += p.A * Math.exp(-(dx * dx + dz * dz) / (2 * p.sig * p.sig)); } return s; }
+  function grad(u, v){ let gu = 0, gv = 0; for (const p of peaks) { const dx = u - p.x, dz = v - p.z, s2 = p.sig * p.sig, g = p.A * Math.exp(-(dx * dx + dz * dz) / (2 * s2)); gu -= g * dx / s2; gv -= g * dz / s2;
+    const L2 = 9 * s2, gl = p.A * 0.35 * Math.exp(-(dx * dx + dz * dz) / (2 * L2)); gu -= gl * dx / L2; gv -= gl * dz / L2; } // faint long-range pull: word of the rent travels
+    return [gu, gv]; }
+
+  // ---------- capital (particles) ----------
+  const M = 1800, pu = new Float32Array(M), pv = new Float32Array(M), vu = new Float32Array(M), vvv = new Float32Array(M), owner = new Int16Array(M);
+  const ppos = new Float32Array(M * 3), pcol = new Float32Array(M * 3);
+  for (let i = 0; i < M; i++) { pu[i] = rnd(-H, H); pv[i] = rnd(-H, H); }
+  const pg = new THREE.BufferGeometry();
+  pg.setAttribute("position", new THREE.BufferAttribute(ppos, 3)); pg.setAttribute("color", new THREE.BufferAttribute(pcol, 3));
+  const pts = new THREE.Points(pg, new THREE.PointsMaterial({ size: 2.4, vertexColors: true, map: dotTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  scene.add(pts);
+  const gray = new THREE.Color("#8d8a83");
+
+  // ---------- dimension state ----------
+  let D = 0, target = 4, tour = null;
+  const clamp01 = x => Math.max(0, Math.min(1, x));
+  const ease = x => x * x * (3 - 2 * x);
+  function setDim(d, fromTour){ target = d; if (!fromTour && tour) { clearInterval(tour); tour = null; $("#tour").textContent = "▶ Tour"; }
+    document.querySelectorAll("#dims button[data-d]").forEach(b => b.setAttribute("aria-pressed", +b.dataset.d === d)); $("#cap").innerHTML = CAPS[d]; }
+  $("#dims").addEventListener("click", e => { const b = e.target.closest("button[data-d]"); if (b) setDim(+b.dataset.d); });
+  $("#tour").addEventListener("click", () => {
+    if (tour) { clearInterval(tour); tour = null; $("#tour").textContent = "▶ Tour"; return; }
+    let d = 0; D = 0; setDim(0, true); $("#tour").textContent = "■ Stop";
+    tour = setInterval(() => { d++; if (d > 4) { clearInterval(tour); tour = null; $("#tour").textContent = "▶ Tour"; return; } setDim(d, true); }, 4200);
+  });
+  $("#flow").addEventListener("input", e => { flow = +e.target.value; $("#flowv").textContent = flow.toFixed(1); });
+  $("#capr").addEventListener("input", e => { capRate = +e.target.value; $("#capv").textContent = capRate.toFixed(1); });
+  $("#shock").addEventListener("click", () => { if (peaks.length >= SLOTS.length) { const w = peaks.reduce((a, p) => p.A < a.A ? p : a); w.age = 1e3; } const p = spawn(false); if (p) { p.tg = 1.2; } if (target < 3) setDim(4); });
+  $("#spin").addEventListener("click", e => { controls.autoRotate = !controls.autoRotate; e.target.textContent = "Orbit: " + (controls.autoRotate ? "on" : "off"); e.target.setAttribute("aria-pressed", controls.autoRotate); });
+
+  // ---------- frame ----------
+  const clock = new THREE.Clock(); let barT = 0;
+  const v3 = new THREE.Vector3();
+  function frame(){
+    const dt = Math.min(0.05, clock.getDelta());
+    D += (target - D) * Math.min(1, dt * 1.6); if (Math.abs(target - D) < 0.002) D = target;
+    const xs = ease(clamp01(D)), zs = ease(clamp01(D - 1)), hs = ease(clamp01(D - 2)), ts = clamp01(D - 3);
+
+    // time: bottlenecks age, drift, erode; dead ones are replaced
+    if (ts > 0) {
+      const dy = dt * 0.9 * ts; year += dy;
+      for (const p of peaks) { p.age += dy; p.x += p.vx * dy * 6; p.z += p.vz * dy * 6;
+        if (Math.abs(p.x) > 80) p.vx *= -1; if (Math.abs(p.z) > 80) p.vz *= -1; p.A = amp(p); }
+      const dead = peaks.filter(p => p.age > p.tg + 2 && p.A < 2.5);
+      dead.forEach(p => { p.el.remove(); peaks.splice(peaks.indexOf(p), 1); });
+      while (peaks.length < 4) spawn(false);
+      if (peaks.length < SLOTS.length && Math.random() < dy * 0.08) spawn(false);
+    }
+
+    // field heights + colors
+    for (let j = 0; j < nv; j++) for (let i = 0; i < nv; i++) hgt[j * nv + i] = hAt(-H + i * SIZE / N, -H + j * SIZE / N);
+    let k = 0;
+    const put = (i, j) => { const h = hgt[j * nv + i], o = k * 3;
+      linePos[o] = (-H + i * SIZE / N) * xs; linePos[o + 1] = h * hs; linePos[o + 2] = (-H + j * SIZE / N) * zs;
+      const t = Math.min(1, h / 42); if (t < 0.5) tmp.copy(low).lerp(mid, t * 2); else tmp.copy(mid).lerp(top, (t - 0.5) * 2);
+      if (hs < 1) tmp.lerp(low, 1 - hs).lerp(mid, (1 - hs) * 0.35 * (1 - t));
+      lineCol[o] = tmp.r; lineCol[o + 1] = tmp.g; lineCol[o + 2] = tmp.b; k++; };
+    for (let j = 0; j < nv; j++) for (let i = 0; i < N; i++) { put(i, j); put(i + 1, j); }
+    for (let i = 0; i < nv; i++) for (let j = 0; j < N; j++) { put(i, j); put(i, j + 1); }
+    lg.attributes.position.needsUpdate = true; lg.attributes.color.needsUpdate = true;
+    field.material.opacity = 0.15 + 0.75 * xs;
+    origin.material.opacity = 1 - xs * 0.92; origin.scale.setScalar(26 - 14 * xs);
+
+    // capital: wanders on the flat field, climbs once height (rent) exists
+    const pull = flow * hs * 0.9, wander = 2 - hs * 1.2;
+    for (let i = 0; i < M; i++) {
+      const [gu, gv] = pull > 0 ? grad(pu[i], pv[i]) : [0, 0];
+      vu[i] = vu[i] * 0.9 + (gu * pull + (Math.random() - 0.5) * wander) * dt * 6;
+      vvv[i] = vvv[i] * 0.9 + (gv * pull + (Math.random() - 0.5) * wander) * dt * 6;
+      const sp = Math.hypot(vu[i], vvv[i]); if (sp > 3) { vu[i] *= 3 / sp; vvv[i] *= 3 / sp; }
+      pu[i] += vu[i] * dt * 10; pv[i] += vvv[i] * dt * 10;
+      if (pu[i] < -H || pu[i] > H) { vu[i] *= -1; pu[i] = Math.max(-H, Math.min(H, pu[i])); }
+      if (pv[i] < -H || pv[i] > H) { vvv[i] *= -1; pv[i] = Math.max(-H, Math.min(H, pv[i])); }
+      if (Math.random() < dt * 0.025 * hs) { pu[i] = rnd(-H, H); pv[i] = rnd(-H, H); } // new savings enter the field
+      let own = -1, best = 1e9;
+      for (let q = 0; q < peaks.length; q++) { const p = peaks[q], d2 = (pu[i] - p.x) ** 2 + (pv[i] - p.z) ** 2; if (d2 < (1.25 * p.sig) ** 2 && d2 < best && p.A > 4) { best = d2; own = q; } }
+      owner[i] = own;
+      const c = own >= 0 && hs > 0.3 ? tmp.set(peaks[own].col) : tmp.copy(gray);
+      pcol[i * 3] = c.r; pcol[i * 3 + 1] = c.g; pcol[i * 3 + 2] = c.b;
+      ppos[i * 3] = pu[i] * xs; ppos[i * 3 + 1] = hAt(pu[i], pv[i]) * hs + 1.2; ppos[i * 3 + 2] = pv[i] * zs;
+    }
+    pg.attributes.position.needsUpdate = true; pg.attributes.color.needsUpdate = true;
+
+    // labels on peak tops
+    const W = innerWidth, Hh = innerHeight;
+    for (const p of peaks) {
+      v3.set(p.x * xs, p.A * hs + 6, p.z * zs).project(camera);
+      const vis = hs > 0.5 && v3.z < 1 && p.A > 4;
+      p.el.style.display = vis ? "flex" : "none";
+      if (vis) { p.el.style.left = ((v3.x + 1) / 2 * W) + "px"; p.el.style.top = ((1 - v3.y) / 2 * Hh) + "px"; p.el.querySelector("span").textContent = "rent " + p.A.toFixed(0); }
+    }
+
+    // capture bars (4 per second)
+    barT += dt;
+    if (barT > 0.25) { barT = 0;
+      const cnt = peaks.map(() => 0); let free = 0; for (let i = 0; i < M; i++) { if (owner[i] >= 0 && hs > 0.3) cnt[owner[i]]++; else free++; }
+      const rows = peaks.map((p, q) => ({ n: p.name, c: p.col, v: cnt[q] / M })).sort((a, b) => b.v - a.v);
+      rows.push({ n: "Uncommitted capital", c: "#8d8a83", v: free / M });
+      $("#bars").innerHTML = rows.map(r => `<div class="br"><div class="lab"><span>${r.n}</span><span>${(r.v * 100).toFixed(0)}%</span></div><div class="trk"><div class="fill" style="width:${(r.v * 100).toFixed(1)}%;background:${r.c}"></div></div></div>`).join("");
+      $("#year").textContent = ts > 0 || year > 0 ? `Year ${year.toFixed(1)}` : "Time frozen";
+    }
+
+    controls.update();
+    renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+  function resize(){ const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    if (w < 820) camera.position.setLength(300); }
+  addEventListener("resize", resize); resize();
+  setDim(0, true);
+  // begin with the climb unless the viewer asked for a dimension
+  const want = new URLSearchParams(location.search).get("d");
+  if (want !== null && want >= 0 && want <= 4) { D = +want; setDim(+want); } else $("#tour").click();
+  frame();
+})();
+</script>
+</body>
+</html>
